@@ -292,7 +292,7 @@ http://scripts.sil.org/OFL
           <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:6px 2px 2px">
             <div>
               <div style="font-size:13px;color:#9A9388;margin-bottom:2px">우리 부부 자산</div>
-              <div style="font-size:19px;font-weight:700;color:#2C2925;letter-spacing:-.3px">지민 · 현우님</div>
+              <div style="font-size:19px;font-weight:700;color:#2C2925;letter-spacing:-.3px">승준 · 인영님</div>
             </div>
             <button onclick="{{ togglePrivacy }}" style="border:none;background:#fff;border-radius:22px;padding:9px 14px;font-size:12px;color:#6B6459;font-weight:600;box-shadow:0 1px 2px rgba(44,41,37,.07);cursor:pointer">{{ privacyLabel }}</button>
           </div>
@@ -316,8 +316,8 @@ http://scripts.sil.org/OFL
           <!-- this month -->
           <div style="background:#fff;border-radius:22px;padding:20px;box-shadow:0 1px 2px rgba(44,41,37,.05),0 10px 26px rgba(44,41,37,.035)">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-              <span style="font-size:15px;font-weight:700;color:#2C2925">6월 가계부</span>
-              <span style="font-size:12px;color:#9A9388">6월 1일–18일</span>
+              <span style="font-size:15px;font-weight:700;color:#2C2925">{{ currentMonthLabel }} 가계부</span>
+              <span style="font-size:12px;color:#9A9388">{{ currentMonthLabel }} 1일–{{ currentDayLabel }}일</span>
             </div>
             <div style="display:flex;gap:14px;margin-bottom:15px">
               <div style="flex:1">
@@ -383,9 +383,9 @@ http://scripts.sil.org/OFL
           <div style="padding:6px 2px 2px"><div style="font-size:19px;font-weight:700;color:#2C2925;letter-spacing:-.3px">거래 내역</div></div>
 
           <div style="background:#fff;border-radius:20px;padding:16px 18px;display:flex;box-shadow:0 1px 2px rgba(44,41,37,.05),0 10px 26px rgba(44,41,37,.035)">
-            <div style="flex:1"><div style="font-size:12px;color:#9A9388;margin-bottom:4px">6월 수입</div><div style="font-size:16px;font-weight:800;color:#4E7459;font-variant-numeric:tabular-nums">{{ incomeText }}</div></div>
+            <div style="flex:1"><div style="font-size:12px;color:#9A9388;margin-bottom:4px">{{ currentMonthLabel }} 수입</div><div style="font-size:16px;font-weight:800;color:#4E7459;font-variant-numeric:tabular-nums">{{ incomeText }}</div></div>
             <div style="width:1px;background:#EEE9E0"></div>
-            <div style="flex:1;padding-left:18px"><div style="font-size:12px;color:#9A9388;margin-bottom:4px">6월 지출</div><div style="font-size:16px;font-weight:800;color:#C0744F;font-variant-numeric:tabular-nums">{{ expenseText }}</div></div>
+            <div style="flex:1;padding-left:18px"><div style="font-size:12px;color:#9A9388;margin-bottom:4px">{{ currentMonthLabel }} 지출</div><div style="font-size:16px;font-weight:800;color:#C0744F;font-variant-numeric:tabular-nums">{{ expenseText }}</div></div>
           </div>
 
           <div style="display:flex;gap:8px">
@@ -635,8 +635,8 @@ http://scripts.sil.org/OFL
 <script type="text/x-dc" data-dc-script="" data-props="{&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;홈&quot;,&quot;거래&quot;,&quot;고정&quot;,&quot;투자&quot;],&quot;default&quot;:&quot;홈&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultPayer&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;지민&quot;,&quot;현우&quot;],&quot;default&quot;:&quot;지민&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;privacyDefault&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
 class Component extends DCLogic {
   members = {
-    a: { id: 'a', name: '지민', initial: '지', tint: '#F0E2DA', ink: '#B0714F' },
-    b: { id: 'b', name: '현우', initial: '현', tint: '#E0EAE2', ink: '#4E7459' },
+    a: { id: 'a', name: '승준', initial: '승', tint: '#F0E2DA', ink: '#B0714F' },
+    b: { id: 'b', name: '인영', initial: '인', tint: '#E0EAE2', ink: '#4E7459' },
   };
   expenseCats = ['주거', '식비', '마트', '외식', '카페', '교통', '통신', '보험', '쇼핑', '의료', '구독', '문화', '기타'];
   incomeCats = ['급여', '부수입', '용돈', '이자', '환급', '기타'];
@@ -648,7 +648,7 @@ class Component extends DCLogic {
       screen: map[this.props.startScreen] || 'home',
       privacy: !!this.props.privacyDefault,
       sheet: null, addType: 'expense', addAmount: '', addCategory: null,
-      addMember: this.props.defaultPayer === '현우' ? 'b' : 'a',
+      addMember: this.props.defaultPayer === '인영' ? 'b' : 'a',
       addMemo: '', updateId: null, updateAmount: '', filterMember: 'all',
       feId: null, feAmount: '', feName: '', feMember: 'a', feCategory: '주거', feDay: 1,
       transactions: [],
@@ -720,7 +720,7 @@ class Component extends DCLogic {
 
   openFixedAdd = () => this.setState({
     sheet: 'fixed', feId: null, feAmount: '', feName: '',
-    feMember: this.props.defaultPayer === '현우' ? 'b' : 'a', feCategory: '주거', feDay: 1,
+    feMember: this.props.defaultPayer === '인영' ? 'b' : 'a', feCategory: '주거', feDay: 1,
   });
 
   openFixedEdit = (id) => {
@@ -824,8 +824,14 @@ class Component extends DCLogic {
     }));
     const allTx = [...s.transactions, ...fixedRows];
 
-    const income = allTx.filter((t) => t.type === 'income').reduce((a, b) => a + b.amount, 0);
-    const expense = allTx.filter((t) => t.type === 'expense').reduce((a, b) => a + b.amount, 0);
+    const now = new Date();
+    const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+    const currentMonthLabel = (now.getMonth() + 1) + '월';
+    const currentDayLabel = now.getDate();
+    const monthTx = allTx.filter((t) => t.date && t.date.startsWith(currentMonth + '.'));
+
+    const income = monthTx.filter((t) => t.type === 'income').reduce((a, b) => a + b.amount, 0);
+    const expense = monthTx.filter((t) => t.type === 'expense').reduce((a, b) => a + b.amount, 0);
     const fixed = activeFixed.reduce((a, b) => a + b.amount, 0);
     const net = income - expense;
     const savingsRate = income ? Math.round((net / income) * 100) : 0;
@@ -906,7 +912,7 @@ class Component extends DCLogic {
       };
     });
 
-    const filterDefs = [['all', '전체'], ['a', '지민'], ['b', '현우']];
+    const filterDefs = [['all', '전체'], ['a', '승준'], ['b', '인영']];
     const filterChips = filterDefs.map(([id, label]) => ({
       label, bg: s.filterMember === id ? sel : '#fff', ink: s.filterMember === id ? '#fff' : '#6B6459',
       on: () => this.setState({ filterMember: id }),
@@ -922,6 +928,7 @@ class Component extends DCLogic {
       togglePrivacy: () => this.setState((p) => ({ privacy: !p.privacy })),
       privacyLabel: s.privacy ? '금액 보기' : '금액 숨기기',
       netWorthText: kor(netWorth), cashText: won(s.cash), investCurrentText: won(current),
+      currentMonthLabel, currentDayLabel,
       incomeText: won(income), expenseText: won(expense), expensePctText: expensePct + '%',
       netText: sgn(net), savingsRateText: savingsRate + '%',
       goInvest: () => this.setState({ screen: 'invest' }),
