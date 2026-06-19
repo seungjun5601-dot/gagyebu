@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#33503F">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="우리집 가계부">
+  <title>우리집 가계부</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <!-- Firebase SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <!-- DC Runtime -->
+  <script src="dc-runtime.js"></script>
+
+  <!-- Pretendard fonts -->
+  <style>
+/*
+Copyright (c) 2021 Kil Hyung-jin, with Reserved Font Name Pretendard.
+https://github.com/orioncactus/pretendard
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+http://scripts.sil.org/OFL
+*/
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 900;
+	font-display: swap;
+	src: local('Pretendard Black'), url("asset_1.woff2") format('woff2'), url("asset_2.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 800;
+	font-display: swap;
+	src: local('Pretendard ExtraBold'), url("asset_3.woff2") format('woff2'), url("asset_4.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 700;
+	font-display: swap;
+	src: local('Pretendard Bold'), url("asset_5.woff2") format('woff2'), url("asset_6.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 600;
+	font-display: swap;
+	src: local('Pretendard SemiBold'), url("asset_7.woff2") format('woff2'), url("asset_8.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 500;
+	font-display: swap;
+	src: local('Pretendard Medium'), url("asset_9.woff2") format('woff2'), url("asset_10.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 400;
+	font-display: swap;
+	src: local('Pretendard Regular'), url("asset_11.woff2") format('woff2'), url("asset_12.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 300;
+	font-display: swap;
+	src: local('Pretendard Light'), url("asset_13.woff2") format('woff2'), url("asset_14.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 200;
+	font-display: swap;
+	src: local('Pretendard ExtraLight'), url("asset_15.woff2") format('woff2'), url("asset_16.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 100;
+	font-display: swap;
+	src: local('Pretendard Thin'), url("asset_17.woff2") format('woff2'), url("asset_18.woff") format('woff');
+}
+
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .scrollarea::-webkit-scrollbar { width: 0; height: 0; }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes dim { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+  </style>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #33503F; font-family: 'Pretendard', -apple-system, sans-serif; }
+    .scrollarea::-webkit-scrollbar { width: 0; height: 0; }
+    @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    /* Login overlay */
+    #login-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      background: #33503F;
+    }
+    .login-card {
+      background: #F2EEE6; border-radius: 24px; padding: 36px 28px;
+      width: 320px; max-width: 90vw; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+    .login-card h1 { margin: 0 0 4px; font-size: 20px; font-weight: 700; color: #2C2925; }
+    .login-card p { margin: 0 0 28px; font-size: 13px; color: #9A9388; }
+    .login-card label { display: block; font-size: 12px; color: #6B6459; margin-bottom: 6px; font-weight: 500; }
+    .login-card input {
+      width: 100%; padding: 12px 14px; border: 1.5px solid #D8D2C7; border-radius: 12px;
+      font-size: 15px; font-family: inherit; background: #fff; color: #2C2925;
+      margin-bottom: 14px; outline: none; transition: border-color .2s;
+    }
+    .login-card input:focus { border-color: #3C5A47; }
+    .login-card button {
+      width: 100%; padding: 14px; background: #3C5A47; color: #fff;
+      border: none; border-radius: 14px; font-size: 16px; font-weight: 600;
+      font-family: inherit; cursor: pointer; margin-top: 4px;
+    }
+    .login-card button:disabled { opacity: 0.6; }
+    #login-error { color: #C0744F; font-size: 13px; margin-top: 10px; min-height: 18px; }
+
+    /* Loading screen */
+    #loading-screen {
+      position: fixed; inset: 0; z-index: 9998;
+      display: none; align-items: center; justify-content: center;
+      flex-direction: column; background: #33503F; gap: 16px;
+    }
+    #loading-screen svg { width: 48px; height: 48px; animation: spin 1s linear infinite; }
+    #loading-screen p { color: #BCD0C2; font-size: 14px; margin: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Logout button */
+    #logout-btn {
+      position: fixed; top: 16px; right: 16px; z-index: 100;
+      background: rgba(0,0,0,0.15); color: #fff; border: none;
+      border-radius: 20px; padding: 6px 14px; font-size: 12px;
+      font-family: inherit; cursor: pointer; display: none;
+    }
+    #app-wrapper.visible #logout-btn { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- Login overlay -->
+<div id="login-overlay">
+  <div class="login-card">
+    <h1>🏠 우리집 가계부</h1>
+    <p>지민 & 현우의 가계부입니다</p>
+    <label>이메일</label>
+    <input type="email" id="email" placeholder="가계부 이메일" autocomplete="email">
+    <label>비밀번호</label>
+    <input type="password" id="password" placeholder="비밀번호" autocomplete="current-password">
+    <button id="login-btn">로그인</button>
+    <div id="login-error"></div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div id="loading-screen">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#BCD0C2" stroke-width="2">
+    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+  </svg>
+  <p>불러오는 중...</p>
+</div>
+
+<!-- App wrapper (hidden until logged in) -->
+<div id="app-wrapper" style="display:none; position:relative;">
+  <button id="logout-btn">로그아웃</button>
+
+<x-dc>
+
+<helmet>
+<style>/*
+Copyright (c) 2021 Kil Hyung-jin, with Reserved Font Name Pretendard.
+https://github.com/orioncactus/pretendard
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+http://scripts.sil.org/OFL
+*/
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 900;
+	font-display: swap;
+	src: local('Pretendard Black'), url("asset_1.woff2") format('woff2'), url("asset_2.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 800;
+	font-display: swap;
+	src: local('Pretendard ExtraBold'), url("asset_3.woff2") format('woff2'), url("asset_4.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 700;
+	font-display: swap;
+	src: local('Pretendard Bold'), url("asset_5.woff2") format('woff2'), url("asset_6.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 600;
+	font-display: swap;
+	src: local('Pretendard SemiBold'), url("asset_7.woff2") format('woff2'), url("asset_8.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 500;
+	font-display: swap;
+	src: local('Pretendard Medium'), url("asset_9.woff2") format('woff2'), url("asset_10.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 400;
+	font-display: swap;
+	src: local('Pretendard Regular'), url("asset_11.woff2") format('woff2'), url("asset_12.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 300;
+	font-display: swap;
+	src: local('Pretendard Light'), url("asset_13.woff2") format('woff2'), url("asset_14.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 200;
+	font-display: swap;
+	src: local('Pretendard ExtraLight'), url("asset_15.woff2") format('woff2'), url("asset_16.woff") format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 100;
+	font-display: swap;
+	src: local('Pretendard Thin'), url("asset_17.woff2") format('woff2'), url("asset_18.woff") format('woff');
+}
+</style>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .scrollarea::-webkit-scrollbar { width: 0; height: 0; }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes dim { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+</style>
+</helmet>
+
+<div style="min-height:100vh;width:100%;background:radial-gradient(120% 80% at 50% 0%, #F0EBE2 0%, #E3DCD0 100%);display:flex;justify-content:center;align-items:flex-start;padding:36px 16px;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;-webkit-font-smoothing:antialiased">
+
+  <div style="position:relative;width:390px;height:844px;flex:none;background:#F2EEE6;border-radius:46px;box-shadow:0 0 0 11px #211f1b, 0 0 0 13px #34302a, 0 34px 70px rgba(33,31,27,.34);overflow:hidden;display:flex;flex-direction:column">
+
+    <!-- status bar -->
+    <div style="height:50px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 28px 0 30px;color:#2C2925">
+      <span style="font-size:15px;font-weight:700;letter-spacing:.3px">9:41</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:17px;height:11px;border:1.5px solid #2C2925;border-radius:3px;position:relative"><div style="position:absolute;inset:1.5px;background:#2C2925;border-radius:1px;width:9px"></div></div>
+        <div style="width:2px;height:5px;background:#2C2925;border-radius:1px;margin-left:1px"></div>
+      </div>
+    </div>
+
+    <!-- scroll content -->
+    <div class="scrollarea" style="flex:1;overflow-y:auto;background:#F2EEE6;display:flex;flex-direction:column;gap:14px;padding:6px 16px 110px">
+
+      <!-- ===================== HOME ===================== -->
+      <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:6px 2px 2px">
+            <div>
+              <div style="font-size:13px;color:#9A9388;margin-bottom:2px">우리 부부 자산</div>
+              <div style="font-size:19px;font-weight:700;color:#2C2925;letter-spacing:-.3px">지민 · 현우님</div>
+            </div>
+            <button onclick="{{ togglePrivacy }}" style="border:none;background:#fff;border-radius:22px;padding:9px 14px;font-size:12px;color:#6B6459;font-weight:600;box-shadow:0 1px 2px rgba(44,41,37,.07);cursor:pointer">{{ privacyLabel }}</button>
+          </div>
+
+          <!-- net worth -->
+          <div style="background:linear-gradient(150deg,#3C5A47 0%,#33503F 100%);border-radius:24px;padding:22px 22px 20px;color:#fff;box-shadow:0 10px 28px rgba(60,90,71,.28)">
+            <div style="font-size:13px;color:#BCD0C2;font-weight:600;margin-bottom:8px">순자산</div>
+            <div style="font-size:33px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums">{{ netWorthText }}</div>
+            <div style="display:flex;gap:18px;margin-top:16px;padding-top:15px;border-top:1px solid rgba(255,255,255,.15)">
+              <div style="flex:1">
+                <div style="font-size:11px;color:#A9C2B1;margin-bottom:3px">현금성 자산</div>
+                <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">{{ cashText }}</div>
+              </div>
+              <div style="flex:1">
+                <div style="font-size:11px;color:#A9C2B1;margin-bottom:3px">투자 평가액</div>
+                <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">{{ investCurrentText }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- this month -->
+          <div style="background:#fff;border-radius:22px;padding:20px;box-shadow:0 1px 2px rgba(44,41,37,.05),0 10px 26px rgba(44,41,37,.035)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <span style="font-size:15px;font-weight:700;color:#2C2925">6월 가계부</span>
+              <span style="font-size:12px;color:#9A9388">6월 1일–18일</span>
+            </div>
+            <div style="display:flex;gap:14px;margin-bottom:15px">
+              <div style="flex:1">
+                <div style="font-size:12px;color:#9A9388;margin-bottom:5px">수입</div>
+                <div style="font-size:19px;font-weight:800;color:#4E7459;letter-spacing:-.5px;font-variant-numeric:tabular-nums">{{ incomeText }}</div>
+              </div>
+              <div style="width:1px;background:#EEE9E0"></div>
+              <div style="flex:1">
+                <div style="font-size:12px;color:#9A9388;margin-bottom:5px">지출</div>
+                <div style="font-size:19px;font-weight:800;color:#C0744F;letter-spacing:-.5px;font-variant-numeric:tabular-nums">{{ expenseText }}</div>
+              </div>
+            </div>
+            <div style="height:8px;border-radius:6px;background:#F1ECE3;overflow:hidden;margin-bottom:15px">
+              <div style="height:100%;background:#C0744F;border-radius:6px;width:{{ expensePctText }};transition:width .4s ease"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:#EEF3EF;border-radius:14px;padding:13px 15px">
+              <span style="font-size:13px;color:#3C5A47;font-weight:700">이번 달 저축</span>
+              <span style="font-size:16px;font-weight:800;color:#3C5A47;font-variant-numeric:tabular-nums">{{ netText }}<span style="font-size:12px;font-weight:600;color:#6E8C78;margin-left:6px">저축률 {{ savingsRateText }}</span></span>
+            </div>
+          </div>
+
+          <!-- investment + fixed row -->
+          <div style="display:flex;gap:14px">
+            <div onclick="{{ goInvest }}" style="flex:1;background:#fff;border-radius:22px;padding:18px;box-shadow:0 1px 2px rgba(44,41,37,.05),0 10px 26px rgba(44,41,37,.035);cursor:pointer">
+              <div style="font-size:13px;color:#9A9388;font-weight:600;margin-bottom:10px">투자 평가손익</div>
+              <div style="font-size:18px;font-weight:800;letter-spacing:-.4px;font-variant-numeric:tabular-nums;color:{{ profitColorHome }}">{{ profitTextHome }}</div>
+              <div style="font-size:13px;font-weight:700;margin-top:3px;color:{{ profitColorHome }}">{{ invRateTextHome }}</div>
+            </div>
+            <div onclick="{{ goFixed }}" style="flex:1;background:#fff;border-radius:22px;padding:18px;box-shadow:0 1px 2px rgba(44,41,37,.05),0 10px 26px rgba(44,41,37,.035);cursor:pointer">
+              <div style="font-size:13px;color:#9A9388;font-weight:600;margin-bottom:10px">매달 고정지출</div>
+              <div style="font-size:18px;font-weight:800;letter-spacing:-.4px;color:#2C2925;font-variant-numeric:tabular-nums">{{ fixedText }}</div>
+              <div style="font-size:13px;color:#9A9388;margin-top:3px">{{ fixedCountText }} · 수입의 {{ fixedPctText }}</div>
+            </div>
+          </div>
+
+          <!-- recent -->
+          <div style="background:#fff;border-radius:22px;padding:20px;box-shadow:0 1px 2px rgba(44,41,37,.05),0 10px 26px rgba(44,41,37,.035)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span style="font-size:15px;font-weight:700;color:#2C2925">최근 거래</span>
+              <button onclick="{{ goTx }}" style="border:none;background:none;font-size:13px;color:#3C5A47;font-weight:600;cursor:pointer">전체보기</button>
+            </div>
+            <sc-for list="{{ recentVm }}" as="t" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:13px;padding:11px 0;border-bottom:1px solid #F4EFE6">
+                <div style="width:38px;height:38px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:{{ t.memberTint }};color:{{ t.memberInk }}">{{ t.memberInitial }}</div>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <span style="font-size:14px;font-weight:600;color:#2C2925">{{ t.category }}</span>
+                    <sc-if value="{{ t.isFixed }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px;font-weight:700;color:#8A8276;background:#F1ECE3;border-radius:5px;padding:2px 6px">고정</span></sc-if>
+                  </div>
+                  <div style="font-size:12px;color:#9A9388;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.sub }}</div>
+                </div>
+                <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:{{ t.amountColor }}">{{ t.amountText }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+        </div>
+      </sc-if>
+
+      <!-- ===================== TX ===================== -->
+      <sc-if value="{{ isTx }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="padding:6px 2px 2px"><div style="font-size:19px;font-weight:700;color:#2C2925;letter-spacing:-.3px">거래 내역</div></div>
+
+          <div style="background:#fff;border-radius:20px;padding:16px 18px;display:flex;box-shadow:0 1px 2px rgba(44,41,37,.05),0 10px 26px rgba(44,41,37,.035)">
+            <div style="flex:1"><div style="font-size:12px;color:#9A9388;margin-bottom:4px">6월 수입</div><div style="font-size:16px;font-weight:800;color:#4E7459;font-variant-numeric:tabular-nums">{{ incomeText }}</div></div>
+            <div style="width:1px;background:#EEE9E0"></div>
+            <div style="flex:1;padding-left:18px"><div style="font-size:12px;color:#9A9388;margin-bottom:4px">6월 지출</div><div style="font-size:16px;font-weight:800;color:#C0744F;font-variant-numeric:tabular-nums">{{ expenseText }}</div></div>
+          </div>
+
+          <div style="display:flex;gap:8px">
+            <sc-for list="{{ filterChips }}" as="f" hint-placeholder-count="3">
+              <button onclick="{{ f.on }}" style="border:none;border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;background:{{ f.bg }};color:{{ f.ink }}">{{ f.label }}</button>
+            </sc-for>
+          </div>
+
+          <div style="background:#fff;border-radius:22px;padding:6px 18px;box-shadow:0 1px 2px rgba(44,41,37,.05),0 10px 26px rgba(44,41,37,.035)">
+            <sc-for list="{{ txVm }}" as="t" hint-placeholder-count="8">
+              <div style="display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid #F4EFE6">
+                <div style="width:38px;height:38px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:{{ t.memberTint }};color:{{ t.memberInk }}">{{ t.memberInitial }}</div>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <span style="font-size:14px;font-weight:600;color:#2C2925">{{ t.category }}</span>
+                    <sc-if value="{{ t.isFixed }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px;font-weight:700;color:#8A8276;background:#F1ECE3;border-radius:5px;padding:2px 6px">고정</span></sc-if>
+                  </div>
+                  <div style="font-size:12px;color:#9A9388;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.sub }}</div>
+                </div>
+                <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:{{ t.amountColor }}">{{ t.amountText }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ===================== FIXED ===================== -->
+      <sc-if value="{{ isFixed }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="padding:6px 2px 2px"><div style="font-size:19px;font-weight:700;color:#2C2925;letter-spacing:-.3px">고정지출</div></div>
+
+          <div style="background:linear-gradient(150deg,#B5764F 0%,#A86A45 100%);border-radius:24px;padding:22px;color:#fff;box-shadow:0 10px 28px rgba(181,118,79,.26)">
+            <div style="font-size:13px;color:#F0DDCD;font-weight:600;margin-bottom:7px">매달 빠져나가는 고정지출</div>
+            <div style="font-size:30px;font-weight:800;letter-spacing:-.8px;font-variant-numeric:tabular-nums">{{ fixedText }}</div>
+            <div style="font-size:13px;color:#F0DDCD;margin-top:6px">활성 {{ fixedActiveCountText }} · 수입의 {{ fixedPctText }}</div>
+          </div>
+
+          <div style="font-size:13px;color:#9A9388;padding:0 4px;line-height:1.5">한 번 등록하면 매달 자동으로 가계부에 반영돼요. 금액이 바뀌면 그때만 수정하세요.</div>
+
+          <sc-for list="{{ fixedVm }}" as="f" hint-placeholder-count="5">
+            <div style="background:#fff;border-radius:18px;padding:15px 16px;display:flex;align-items:center;gap:13px;box-shadow:0 1px 2px rgba(44,41,37,.05),0 10px 26px rgba(44,41,37,.035);opacity:{{ f.opacity }}">
+              <div onclick="{{ f.onEdit }}" style="width:40px;height:40px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:{{ f.memberTint }};color:{{ f.memberInk }};cursor:pointer">{{ f.memberInitial }}</div>
+              <div onclick="{{ f.onEdit }}" style="flex:1;min-width:0;cursor:pointer">
+                <div style="font-size:15px;font-weight:700;color:#2C2925;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.name }}</div>
+                <div style="font-size:12px;color:#9A9388;margin-top:2px">{{ f.category }} · 매월 {{ f.day }}일</div>
+              </div>
+              <div onclick="{{ f.onEdit }}" style="font-size:15px;font-weight:800;color:#2C2925;font-variant-numeric:tabular-nums;cursor:pointer">{{ f.amountText }}</div>
+              <button onclick="{{ f.onToggle }}" style="width:42px;height:25px;flex:none;border-radius:14px;border:none;cursor:pointer;position:relative;background:{{ f.trackBg }};transition:background .2s"><div style="position:absolute;top:3px;width:19px;height:19px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);left:{{ f.knobX }};transition:left .2s"></div></button>
+            </div>
+          </sc-for>
+
+          <button onclick="{{ openFixedAdd }}" style="border:2px dashed #D4CCBC;background:transparent;border-radius:18px;padding:16px;font-size:15px;font-weight:700;color:#8A8276;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px"><span style="font-size:20px;font-weight:400;line-height:1">+</span>고정지출 추가</button>
+        </div>
+      </sc-if>
+
+      <!-- ===================== INVEST ===================== -->
+      <sc-if value="{{ isInvest }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="padding:6px 2px 2px"><div style="font-size:19px;font-weight:700;color:#2C2925;letter-spacing:-.3px">투자 현황</div></div>
+
+          <div style="background:linear-gradient(150deg,#3C5A47 0%,#33503F 100%);border-radius:24px;padding:22px;color:#fff;box-shadow:0 10px 28px rgba(60,90,71,.28)">
+            <div style="font-size:13px;color:#BCD0C2;font-weight:600;margin-bottom:7px">총 평가금액</div>
+            <div style="font-size:30px;font-weight:800;letter-spacing:-.8px;font-variant-numeric:tabular-nums">{{ currentTotalText }}</div>
+            <div style="display:flex;gap:18px;margin-top:16px;padding-top:15px;border-top:1px solid rgba(255,255,255,.15)">
+              <div style="flex:1"><div style="font-size:11px;color:#A9C2B1;margin-bottom:3px">투자 원금</div><div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">{{ investedTotalText }}</div></div>
+              <div style="flex:1"><div style="font-size:11px;color:#A9C2B1;margin-bottom:3px">평가손익</div><div style="font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;color:{{ totalProfitColorLight }}">{{ profitTotalText }} ({{ invRateText }})</div></div>
+            </div>
+          </div>
+
+          <div style="font-size:13px;color:#9A9388;padding:2px 4px;line-height:1.5">평가금액만 가끔 업데이트하면, 수익·손해는 자동으로 계산돼요. 매번 손익을 직접 입력할 필요가 없어요.</div>
+
+          <sc-for list="{{ holdingsVm }}" as="h" hint-placeholder-count="5">
+            <div style="background:#fff;border-radius:20px;padding:17px 18px;box-shadow:0 1px 2px rgba(44,41,37,.05),0 10px 26px rgba(44,41,37,.035)">
+              <div style="display:flex;align-items:center;gap:11px;margin-bottom:13px">
+                <div style="width:34px;height:34px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:{{ h.memberTint }};color:{{ h.memberInk }}">{{ h.memberInitial }}</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:15px;font-weight:700;color:#2C2925">{{ h.name }}</div>
+                  <div style="font-size:12px;color:#9A9388;margin-top:1px">{{ h.type }} · {{ h.investedText }}</div>
+                </div>
+                <button onclick="{{ h.onUpdate }}" style="border:1px solid #E4DECF;background:#FAF7F1;border-radius:10px;padding:7px 11px;font-size:12px;font-weight:600;color:#6B6459;cursor:pointer">평가액 수정</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px">
+                <div><div style="font-size:11px;color:#9A9388;margin-bottom:2px">현재 평가금액</div><div style="font-size:18px;font-weight:800;color:#2C2925;font-variant-numeric:tabular-nums">{{ h.currentText }}</div></div>
+                <div style="text-align:right"><div style="font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;color:{{ h.color }}">{{ h.profitText }}</div><div style="font-size:13px;font-weight:700;color:{{ h.color }}">{{ h.rateText }}</div></div>
+              </div>
+              <div style="height:6px;border-radius:4px;background:#F1ECE3;overflow:hidden"><div style="height:100%;border-radius:4px;width:{{ h.barPct }};background:{{ h.color }}"></div></div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+    </div>
+
+    <!-- bottom nav -->
+    <div style="position:absolute;left:0;right:0;bottom:0;height:84px;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-top:1px solid #EEE9E0;display:flex;align-items:flex-start;padding:12px 14px 0">
+      <button onclick="{{ goHome }}" style="flex:1;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0">
+        <div style="width:20px;height:3px;border-radius:2px;background:{{ navHomeColor }}"></div>
+        <span style="font-size:11px;font-weight:700;color:{{ navHomeColor }}">홈</span>
+      </button>
+      <button onclick="{{ goTx }}" style="flex:1;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0">
+        <div style="width:20px;height:3px;border-radius:2px;background:{{ navTxColor }}"></div>
+        <span style="font-size:11px;font-weight:700;color:{{ navTxColor }}">거래</span>
+      </button>
+      <button onclick="{{ goFixed }}" style="flex:1;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0">
+        <div style="width:20px;height:3px;border-radius:2px;background:{{ navFixedColor }}"></div>
+        <span style="font-size:11px;font-weight:700;color:{{ navFixedColor }}">고정</span>
+      </button>
+      <button onclick="{{ goInvest }}" style="flex:1;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0">
+        <div style="width:20px;height:3px;border-radius:2px;background:{{ navInvestColor }}"></div>
+        <span style="font-size:11px;font-weight:700;color:{{ navInvestColor }}">투자</span>
+      </button>
+    </div>
+
+    <button onclick="{{ openAdd }}" style="position:absolute;right:22px;bottom:100px;width:56px;height:56px;border-radius:18px;border:none;background:#3C5A47;color:#fff;font-size:30px;font-weight:300;line-height:1;cursor:pointer;box-shadow:0 8px 20px rgba(60,90,71,.4);display:flex;align-items:center;justify-content:center;padding-bottom:3px">+</button>
+
+    <!-- ===================== SHEET ===================== -->
+    <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:30">
+        <div onclick="{{ closeSheet }}" style="position:absolute;inset:0;background:rgba(33,31,27,.42);animation:dim .2s ease"></div>
+
+        <!-- ADD TRANSACTION -->
+        <sc-if value="{{ sheetAdd }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:0;right:0;bottom:0;background:#F7F3EC;border-radius:28px 28px 0 0;padding:10px 20px calc(20px + env(safe-area-inset-bottom));max-height:96%;overflow-y:auto;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1)" class="scrollarea">
+            <div style="width:38px;height:4px;border-radius:3px;background:#DDD6C9;margin:4px auto 16px"></div>
+
+            <div style="display:flex;background:#EAE4D8;border-radius:14px;padding:4px;margin-bottom:18px">
+              <button onclick="{{ setExpense }}" style="flex:1;border:none;border-radius:11px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;background:{{ segExpenseBg }};color:{{ segExpenseInk }}">지출</button>
+              <button onclick="{{ setIncome }}" style="flex:1;border:none;border-radius:11px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;background:{{ segIncomeBg }};color:{{ segIncomeInk }}">수입</button>
+            </div>
+
+            <div style="text-align:center;margin-bottom:18px">
+              <span style="font-size:34px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums;color:{{ addAmountColor }}">{{ addAmountText }}</span>
+              <span style="font-size:22px;font-weight:700;color:#9A9388;margin-left:3px">원</span>
+            </div>
+
+            <div style="font-size:12px;font-weight:600;color:#9A9388;margin-bottom:9px">누가 썼나요?</div>
+            <div style="display:flex;gap:10px;margin-bottom:18px">
+              <sc-for list="{{ memberAddChips }}" as="m" hint-placeholder-count="2">
+                <button onclick="{{ m.on }}" style="flex:1;border:2px solid {{ m.border }};background:{{ m.bg }};border-radius:14px;padding:11px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer">
+                  <div style="width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:{{ m.tint }};color:{{ m.tinkInk }}">{{ m.initial }}</div>
+                  <span style="font-size:14px;font-weight:700;color:{{ m.ink }}">{{ m.name }}</span>
+                </button>
+              </sc-for>
+            </div>
+
+            <div style="font-size:12px;font-weight:600;color:#9A9388;margin-bottom:9px">분류</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
+              <sc-for list="{{ catVm }}" as="c" hint-placeholder-count="8">
+                <button onclick="{{ c.on }}" style="border:none;border-radius:11px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;background:{{ c.bg }};color:{{ c.ink }}">{{ c.name }}</button>
+              </sc-for>
+            </div>
+
+            <input value="{{ addMemo }}" onchange="{{ setMemo }}" placeholder="메모 (선택)" style="width:100%;border:none;background:#fff;border-radius:14px;padding:14px 16px;font-size:14px;color:#2C2925;font-family:inherit;margin-bottom:16px;outline:none">
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+              <sc-for list="{{ keypadVm }}" as="k" hint-placeholder-count="12">
+                <button onclick="{{ k.on }}" style="border:none;background:#fff;border-radius:14px;padding:16px 0;font-size:22px;font-weight:700;color:#2C2925;cursor:pointer;box-shadow:0 1px 2px rgba(44,41,37,.05)">{{ k.label }}</button>
+              </sc-for>
+            </div>
+
+            <button onclick="{{ save }}" style="width:100%;border:none;background:#3C5A47;color:#fff;border-radius:16px;padding:17px;font-size:16px;font-weight:700;cursor:pointer">저장하기</button>
+          </div>
+        </sc-if>
+
+        <!-- FIXED EDIT/ADD -->
+        <sc-if value="{{ sheetFixed }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:0;right:0;bottom:0;background:#F7F3EC;border-radius:28px 28px 0 0;padding:10px 20px calc(20px + env(safe-area-inset-bottom));max-height:96%;overflow-y:auto;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1)" class="scrollarea">
+            <div style="width:38px;height:4px;border-radius:3px;background:#DDD6C9;margin:4px auto 14px"></div>
+            <div style="font-size:16px;font-weight:700;color:#2C2925;text-align:center;margin-bottom:16px">{{ fixedSheetTitle }}</div>
+
+            <div style="text-align:center;margin-bottom:18px">
+              <span style="font-size:34px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums;color:{{ feAmountColor }}">{{ feAmountText }}</span>
+              <span style="font-size:22px;font-weight:700;color:#9A9388;margin-left:3px">원</span>
+            </div>
+
+            <input value="{{ feName }}" onchange="{{ setFeName }}" placeholder="항목 이름 (예: 월세, 보험)" style="width:100%;border:none;background:#fff;border-radius:14px;padding:14px 16px;font-size:14px;color:#2C2925;font-family:inherit;margin-bottom:16px;outline:none">
+
+            <div style="font-size:12px;font-weight:600;color:#9A9388;margin-bottom:9px">누구 명의인가요?</div>
+            <div style="display:flex;gap:10px;margin-bottom:18px">
+              <sc-for list="{{ feMemberChips }}" as="m" hint-placeholder-count="2">
+                <button onclick="{{ m.on }}" style="flex:1;border:2px solid {{ m.border }};background:{{ m.bg }};border-radius:14px;padding:11px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer">
+                  <div style="width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:{{ m.tint }};color:{{ m.tinkInk }}">{{ m.initial }}</div>
+                  <span style="font-size:14px;font-weight:700;color:{{ m.ink }}">{{ m.name }}</span>
+                </button>
+              </sc-for>
+            </div>
+
+            <div style="font-size:12px;font-weight:600;color:#9A9388;margin-bottom:9px">분류</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
+              <sc-for list="{{ feCatVm }}" as="c" hint-placeholder-count="8">
+                <button onclick="{{ c.on }}" style="border:none;border-radius:11px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;background:{{ c.bg }};color:{{ c.ink }}">{{ c.name }}</button>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:14px;padding:13px 16px;margin-bottom:16px">
+              <div><div style="font-size:14px;font-weight:600;color:#2C2925">결제일</div><div style="font-size:12px;color:#9A9388;margin-top:1px">매월 며칠에 빠져나가나요?</div></div>
+              <div style="display:flex;align-items:center;gap:14px">
+                <button onclick="{{ feDayDown }}" style="width:32px;height:32px;border-radius:10px;border:none;background:#F1ECE3;font-size:20px;font-weight:600;color:#6B6459;cursor:pointer;line-height:1">−</button>
+                <span style="font-size:16px;font-weight:700;color:#2C2925;min-width:48px;text-align:center;font-variant-numeric:tabular-nums">{{ feDayText }}</span>
+                <button onclick="{{ feDayUp }}" style="width:32px;height:32px;border-radius:10px;border:none;background:#F1ECE3;font-size:20px;font-weight:600;color:#6B6459;cursor:pointer;line-height:1">+</button>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+              <sc-for list="{{ keypadVm }}" as="k" hint-placeholder-count="12">
+                <button onclick="{{ k.on }}" style="border:none;background:#fff;border-radius:14px;padding:16px 0;font-size:22px;font-weight:700;color:#2C2925;cursor:pointer;box-shadow:0 1px 2px rgba(44,41,37,.05)">{{ k.label }}</button>
+              </sc-for>
+            </div>
+
+            <button onclick="{{ saveFixed }}" style="width:100%;border:none;background:#3C5A47;color:#fff;border-radius:16px;padding:17px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:10px">{{ fixedSaveLabel }}</button>
+            <sc-if value="{{ feEditing }}" hint-placeholder-val="{{ false }}">
+              <button onclick="{{ deleteFixed }}" style="width:100%;border:none;background:transparent;color:#C0744F;border-radius:16px;padding:13px;font-size:14px;font-weight:700;cursor:pointer">삭제하기</button>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- UPDATE VALUE -->
+        <sc-if value="{{ sheetUpdate }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:0;right:0;bottom:0;background:#F7F3EC;border-radius:28px 28px 0 0;padding:10px 20px calc(20px + env(safe-area-inset-bottom));animation:sheetUp .28s cubic-bezier(.2,.8,.2,1)">
+            <div style="width:38px;height:4px;border-radius:3px;background:#DDD6C9;margin:4px auto 16px"></div>
+            <div style="font-size:13px;color:#9A9388;text-align:center;margin-bottom:3px">평가금액 업데이트</div>
+            <div style="font-size:17px;font-weight:700;color:#2C2925;text-align:center;margin-bottom:18px">{{ updateHoldingName }}</div>
+            <div style="text-align:center;margin-bottom:20px">
+              <span style="font-size:34px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums;color:#2C2925">{{ updateAmountText }}</span>
+              <span style="font-size:22px;font-weight:700;color:#9A9388;margin-left:3px">원</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+              <sc-for list="{{ keypadVm }}" as="k" hint-placeholder-count="12">
+                <button onclick="{{ k.on }}" style="border:none;background:#fff;border-radius:14px;padding:16px 0;font-size:22px;font-weight:700;color:#2C2925;cursor:pointer;box-shadow:0 1px 2px rgba(44,41,37,.05)">{{ k.label }}</button>
+              </sc-for>
+            </div>
+            <button onclick="{{ saveUpdate }}" style="width:100%;border:none;background:#3C5A47;color:#fff;border-radius:16px;padding:17px;font-size:16px;font-weight:700;cursor:pointer">업데이트</button>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- toast -->
+    <sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;bottom:104px;left:50%;transform:translateX(-50%);z-index:40;background:rgba(33,31,27,.92);color:#fff;font-size:13px;font-weight:600;padding:11px 20px;border-radius:22px;animation:toastIn .25s ease;white-space:nowrap">{{ toastMsg }}</div>
+    </sc-if>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;홈&quot;,&quot;거래&quot;,&quot;고정&quot;,&quot;투자&quot;],&quot;default&quot;:&quot;홈&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultPayer&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;지민&quot;,&quot;현우&quot;],&quot;default&quot;:&quot;지민&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;privacyDefault&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  members = {
+    a: { id: 'a', name: '지민', initial: '지', tint: '#F0E2DA', ink: '#B0714F' },
+    b: { id: 'b', name: '현우', initial: '현', tint: '#E0EAE2', ink: '#4E7459' },
+  };
+  expenseCats = ['주거', '식비', '마트', '외식', '카페', '교통', '통신', '보험', '쇼핑', '의료', '구독', '문화', '기타'];
+  incomeCats = ['급여', '부수입', '용돈', '이자', '환급', '기타'];
+  cash = 0;
+
+  state = (() => {
+    const map = { '홈': 'home', '거래': 'tx', '고정': 'fixed', '투자': 'invest' };
+    return {
+      screen: map[this.props.startScreen] || 'home',
+      privacy: !!this.props.privacyDefault,
+      sheet: null, addType: 'expense', addAmount: '', addCategory: null,
+      addMember: this.props.defaultPayer === '현우' ? 'b' : 'a',
+      addMemo: '', updateId: null, updateAmount: '', filterMember: 'all',
+      feId: null, feAmount: '', feName: '', feMember: 'a', feCategory: '주거', feDay: 1,
+      transactions: [],
+      fixedItems: [],
+      holdings: [],
+      cash: 0,
+      toast: null,
+    };
+  })();
+
+  componentDidMount() {
+    window.__dcComponent = this;
+    if (window.__onComponentReady) window.__onComponentReady(this);
+  }
+
+  showToast = (m) => {
+    this.setState({ toast: m });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: null }), 1900);
+  };
+
+  amountKey = () => {
+    const s = this.state.sheet;
+    if (s === 'update') return 'updateAmount';
+    if (s === 'fixed') return 'feAmount';
+    return 'addAmount';
+  };
+
+  press = (d) => this.setState((st) => {
+    const key = this.amountKey();
+    let cur = st[key];
+    if (key === 'updateAmount' && cur === '0') cur = '';
+    const v = cur + d;
+    return v.length > 13 ? {} : { [key]: v };
+  });
+
+  back = () => this.setState((st) => {
+    const key = this.amountKey();
+    return { [key]: st[key].slice(0, -1) };
+  });
+
+  _today = () => {
+    const now = new Date();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    return mm + '.' + dd;
+  };
+
+  save = () => {
+    const st = this.state;
+    const amt = Number(st.addAmount || 0);
+    if (!amt || !st.addCategory) { this.showToast('금액과 분류를 입력해 주세요'); return; }
+    const t = {
+      id: 't' + Date.now(),
+      type: st.addType, amount: amt, category: st.addCategory,
+      memo: st.addMemo || (st.addType === 'income' ? '수입' : st.addCategory),
+      member: st.addMember,
+      date: this._today(),
+    };
+    this.setState((p) => ({
+      transactions: [t, ...p.transactions],
+      sheet: null, addAmount: '', addCategory: null, addMemo: '',
+    }));
+    if (window.__fs) {
+      window.__fs.collection('transactions').doc(t.id).set(t).catch(console.error);
+    }
+    this.showToast(st.addType === 'income' ? '수입이 저장되었어요' : '지출이 저장되었어요');
+  };
+
+  openFixedAdd = () => this.setState({
+    sheet: 'fixed', feId: null, feAmount: '', feName: '',
+    feMember: this.props.defaultPayer === '현우' ? 'b' : 'a', feCategory: '주거', feDay: 1,
+  });
+
+  openFixedEdit = (id) => {
+    const f = this.state.fixedItems.find((x) => x.id === id);
+    this.setState({
+      sheet: 'fixed', feId: id, feAmount: String(f.amount), feName: f.name,
+      feMember: f.member, feCategory: f.category, feDay: f.day,
+    });
+  };
+
+  feDayUp = () => this.setState((s) => ({ feDay: s.feDay >= 31 ? 1 : s.feDay + 1 }));
+  feDayDown = () => this.setState((s) => ({ feDay: s.feDay <= 1 ? 31 : s.feDay - 1 }));
+
+  saveFixed = () => {
+    const st = this.state;
+    const amt = Number(st.feAmount || 0);
+    const name = st.feName.trim();
+    if (!amt || !name) { this.showToast('금액과 항목 이름을 입력해 주세요'); return; }
+    const isEdit = !!st.feId;
+    const id = st.feId || ('f' + Date.now());
+    const data = { id, name, amount: amt, category: st.feCategory, member: st.feMember, day: st.feDay, active: true };
+    this.setState((p) => {
+      const items = isEdit
+        ? p.fixedItems.map((f) => f.id === p.feId ? { ...f, name, amount: amt, category: p.feCategory, member: p.feMember, day: p.feDay } : f)
+        : [...p.fixedItems, data];
+      return { fixedItems: items, sheet: null };
+    });
+    if (window.__fs) {
+      window.__fs.collection('fixedItems').doc(id).set(
+        isEdit ? { name, amount: amt, category: st.feCategory, member: st.feMember, day: st.feDay } : data,
+        { merge: true }
+      ).catch(console.error);
+    }
+    this.showToast(isEdit ? '고정지출을 수정했어요' : '고정지출을 등록했어요');
+  };
+
+  deleteFixed = () => {
+    const id = this.state.feId;
+    this.setState((p) => ({ fixedItems: p.fixedItems.filter((f) => f.id !== id), sheet: null }));
+    if (window.__fs) {
+      window.__fs.collection('fixedItems').doc(id).delete().catch(console.error);
+    }
+    this.showToast('고정지출을 삭제했어요');
+  };
+
+  toggleFixedActive = (id) => {
+    const cur = this.state.fixedItems.find((f) => f.id === id);
+    const next = !cur.active;
+    this.setState((p) => ({
+      fixedItems: p.fixedItems.map((f) => f.id === id ? { ...f, active: next } : f),
+    }));
+    if (window.__fs) {
+      window.__fs.collection('fixedItems').doc(id).update({ active: next }).catch(console.error);
+    }
+  };
+
+  openUpdate = (id) => {
+    const h = this.state.holdings.find((x) => x.id === id);
+    this.setState({ sheet: 'update', updateId: id, updateAmount: String(h.current) });
+  };
+
+  saveUpdate = () => {
+    const id = this.state.updateId;
+    const v = Number(this.state.updateAmount || 0);
+    this.setState((p) => ({
+      holdings: p.holdings.map((h) => (h.id === id ? { ...h, current: v } : h)),
+      sheet: null, updateId: null, updateAmount: '',
+    }));
+    if (window.__fs) {
+      window.__fs.collection('holdings').doc(id).update({ current: v }).catch(console.error);
+    }
+    this.showToast('평가금액을 업데이트했어요');
+  };
+
+  renderVals() {
+    const s = this.state;
+    const M = this.members;
+    const fmt = (n) => n.toLocaleString('ko-KR');
+    const mask = '•••••';
+    const won = (n) => (s.privacy ? mask : fmt(n) + '원');
+    const sgn = (n) => (s.privacy ? mask : (n >= 0 ? '+' : '-') + fmt(Math.abs(n)) + '원');
+    const kor = (n) => {
+      if (s.privacy) return mask;
+      const eok = Math.floor(n / 100000000);
+      const man = Math.floor((n % 100000000) / 10000);
+      let r = '';
+      if (eok > 0) r += eok + '억 ';
+      if (man > 0) r += fmt(man) + '만';
+      if (!r) r = fmt(n);
+      return r.trim() + '원';
+    };
+    const pad2 = (d) => (d < 10 ? '0' + d : '' + d);
+
+    const activeFixed = s.fixedItems.filter((f) => f.active);
+    const fixedRows = activeFixed.map((f) => ({
+      id: f.id, type: 'expense', amount: f.amount, category: f.category,
+      memo: f.name, member: f.member, date: String(new Date().getFullYear()).slice(2, 4).length > 0
+        ? (String(new Date().getMonth() + 1).padStart(2,'0') + '.' + pad2(f.day))
+        : '00.' + pad2(f.day),
+      fixed: true,
+    }));
+    const allTx = [...s.transactions, ...fixedRows];
+
+    const income = allTx.filter((t) => t.type === 'income').reduce((a, b) => a + b.amount, 0);
+    const expense = allTx.filter((t) => t.type === 'expense').reduce((a, b) => a + b.amount, 0);
+    const fixed = activeFixed.reduce((a, b) => a + b.amount, 0);
+    const net = income - expense;
+    const savingsRate = income ? Math.round((net / income) * 100) : 0;
+    const expensePct = income ? Math.min(100, Math.round((expense / income) * 100)) : 0;
+    const fixedPct = income ? Math.round((fixed / income) * 100) : 0;
+
+    const invested = s.holdings.reduce((a, b) => a + b.invested, 0);
+    const current = s.holdings.reduce((a, b) => a + b.current, 0);
+    const profit = current - invested;
+    const invRate = invested ? (profit / invested) * 100 : 0;
+    const netWorth = s.cash + current;
+
+    const mapTx = (t) => {
+      const m = M[t.member];
+      return {
+        id: t.id, category: t.category, sub: t.memo + ' · ' + t.date, isFixed: !!t.fixed,
+        memberInitial: m.initial, memberTint: m.tint, memberInk: m.ink,
+        amountText: s.privacy ? mask : (t.type === 'income' ? '+' : '-') + fmt(t.amount) + '원',
+        amountColor: t.type === 'income' ? '#4E7459' : '#2C2925',
+      };
+    };
+    const sorted = [...allTx].sort((a, b) => (a.date < b.date ? 1 : -1));
+    const recentVm = sorted.slice(0, 5).map(mapTx);
+    let txFilt = sorted;
+    if (s.filterMember !== 'all') txFilt = sorted.filter((t) => t.member === s.filterMember);
+    const txVm = txFilt.map(mapTx);
+
+    const fixedVm = [...s.fixedItems].sort((a, b) => a.day - b.day).map((f) => {
+      const m = M[f.member];
+      return {
+        id: f.id, name: f.name, category: f.category, day: f.day,
+        memberInitial: m.initial, memberTint: m.tint, memberInk: m.ink,
+        amountText: s.privacy ? mask : fmt(f.amount) + '원',
+        opacity: f.active ? '1' : '.5',
+        trackBg: f.active ? '#3C5A47' : '#D8D2C7',
+        knobX: f.active ? '20px' : '3px',
+        onEdit: () => this.openFixedEdit(f.id),
+        onToggle: () => this.toggleFixedActive(f.id),
+      };
+    });
+
+    const holdingsVm = s.holdings.map((h) => {
+      const m = M[h.member];
+      const p = h.current - h.invested;
+      const r = h.invested ? (p / h.invested) * 100 : 0;
+      const pos = p >= 0;
+      return {
+        id: h.id, name: h.name, type: h.type,
+        memberInitial: m.initial, memberTint: m.tint, memberInk: m.ink,
+        currentText: won(h.current),
+        investedText: '원금 ' + (s.privacy ? mask : fmt(h.invested) + '원'),
+        profitText: s.privacy ? mask : (pos ? '+' : '-') + fmt(Math.abs(p)) + '원',
+        rateText: (pos ? '+' : '') + r.toFixed(1) + '%',
+        color: pos ? '#4E7459' : '#C0744F',
+        barPct: Math.min(100, Math.abs(r) * 3) + '%',
+        onUpdate: () => this.openUpdate(h.id),
+      };
+    });
+
+    const sel = '#3C5A47';
+    const addCats = s.addType === 'income' ? this.incomeCats : this.expenseCats;
+    const catVm = addCats.map((c) => ({
+      name: c, bg: c === s.addCategory ? sel : '#fff', ink: c === s.addCategory ? '#fff' : '#6B6459',
+      on: () => this.setState({ addCategory: c }),
+    }));
+
+    const feCatVm = this.expenseCats.map((c) => ({
+      name: c, bg: c === s.feCategory ? sel : '#fff', ink: c === s.feCategory ? '#fff' : '#6B6459',
+      on: () => this.setState({ feCategory: c }),
+    }));
+
+    const memberChips = (selId, onPick) => ['a', 'b'].map((id) => {
+      const m = M[id]; const active = selId === id;
+      return {
+        id, name: m.name, initial: m.initial, tint: m.tint, tinkInk: m.ink,
+        bg: active ? '#fff' : '#F2EDE4', border: active ? sel : 'transparent',
+        ink: active ? '#2C2925' : '#9A9388', on: () => onPick(id),
+      };
+    });
+
+    const filterDefs = [['all', '전체'], ['a', '지민'], ['b', '현우']];
+    const filterChips = filterDefs.map(([id, label]) => ({
+      label, bg: s.filterMember === id ? sel : '#fff', ink: s.filterMember === id ? '#fff' : '#6B6459',
+      on: () => this.setState({ filterMember: id }),
+    }));
+
+    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', '⌫'];
+    const keypadVm = keys.map((k) => ({ label: k, on: k === '⌫' ? this.back : () => this.press(k) }));
+
+    const updH = s.holdings.find((h) => h.id === s.updateId);
+
+    return {
+      isHome: s.screen === 'home', isTx: s.screen === 'tx', isFixed: s.screen === 'fixed', isInvest: s.screen === 'invest',
+      togglePrivacy: () => this.setState((p) => ({ privacy: !p.privacy })),
+      privacyLabel: s.privacy ? '금액 보기' : '금액 숨기기',
+      netWorthText: kor(netWorth), cashText: won(s.cash), investCurrentText: won(current),
+      incomeText: won(income), expenseText: won(expense), expensePctText: expensePct + '%',
+      netText: sgn(net), savingsRateText: savingsRate + '%',
+      goInvest: () => this.setState({ screen: 'invest' }),
+      goHome: () => this.setState({ screen: 'home' }),
+      goTx: () => this.setState({ screen: 'tx' }),
+      goFixed: () => this.setState({ screen: 'fixed' }),
+      profitTextHome: sgn(profit), invRateTextHome: (profit >= 0 ? '+' : '') + invRate.toFixed(1) + '%',
+      profitColorHome: profit >= 0 ? '#4E7459' : '#C0744F',
+      fixedText: won(fixed), fixedCountText: activeFixed.length + '건', fixedActiveCountText: activeFixed.length + '건',
+      fixedPctText: fixedPct + '%', fixedVm,
+      recentVm, txVm, filterChips,
+      currentTotalText: kor(current), investedTotalText: won(invested), profitTotalText: sgn(profit),
+      invRateText: (profit >= 0 ? '+' : '') + invRate.toFixed(1) + '%',
+      totalProfitColorLight: profit >= 0 ? '#A9DDBC' : '#E9B79E', holdingsVm,
+      navHomeColor: s.screen === 'home' ? sel : '#C3BCAF', navTxColor: s.screen === 'tx' ? sel : '#C3BCAF',
+      navFixedColor: s.screen === 'fixed' ? sel : '#C3BCAF', navInvestColor: s.screen === 'invest' ? sel : '#C3BCAF',
+      openAdd: () => this.setState({ sheet: 'add', addType: 'expense', addCategory: null, addAmount: '', addMemo: '' }),
+      sheetOpen: !!s.sheet, sheetAdd: s.sheet === 'add', sheetFixed: s.sheet === 'fixed', sheetUpdate: s.sheet === 'update',
+      closeSheet: () => this.setState({ sheet: null }),
+      setExpense: () => this.setState({ addType: 'expense', addCategory: null }),
+      setIncome: () => this.setState({ addType: 'income', addCategory: null }),
+      segExpenseBg: s.addType === 'expense' ? '#fff' : 'transparent',
+      segExpenseInk: s.addType === 'expense' ? '#C0744F' : '#9A9388',
+      segIncomeBg: s.addType === 'income' ? '#fff' : 'transparent',
+      segIncomeInk: s.addType === 'income' ? '#4E7459' : '#9A9388',
+      addAmountText: s.addAmount ? fmt(Number(s.addAmount)) : '0',
+      addAmountColor: s.addAmount ? '#2C2925' : '#CDC6B9',
+      memberAddChips: memberChips(s.addMember, (id) => this.setState({ addMember: id })),
+      catVm, addMemo: s.addMemo, setMemo: (e) => this.setState({ addMemo: e.target.value }), save: this.save,
+      fixedSheetTitle: s.feId ? '고정지출 수정' : '고정지출 추가',
+      fixedSaveLabel: s.feId ? '수정 완료' : '등록하기',
+      feEditing: !!s.feId,
+      feAmountText: s.feAmount ? fmt(Number(s.feAmount)) : '0',
+      feAmountColor: s.feAmount ? '#2C2925' : '#CDC6B9',
+      feName: s.feName, setFeName: (e) => this.setState({ feName: e.target.value }),
+      feMemberChips: memberChips(s.feMember, (id) => this.setState({ feMember: id })),
+      feCatVm, feDayText: '매월 ' + s.feDay + '일', feDayUp: this.feDayUp, feDayDown: this.feDayDown,
+      openFixedAdd: this.openFixedAdd, saveFixed: this.saveFixed, deleteFixed: this.deleteFixed,
+      keypadVm,
+      updateHoldingName: updH ? updH.name : '',
+      updateAmountText: s.updateAmount ? fmt(Number(s.updateAmount)) : '0', saveUpdate: this.saveUpdate,
+      toastShow: !!s.toast, toastMsg: s.toast || '',
+    };
+  }
+}
+</script>
+
+</div>
+
+
+<script>
+(function() {
+  const OVERLAY = document.getElementById('login-overlay');
+  const APP = document.getElementById('app-wrapper');
+  const LOADING = document.getElementById('loading-screen');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const loginBtn = document.getElementById('login-btn');
+  const loginError = document.getElementById('login-error');
+  const logoutBtn = document.getElementById('logout-btn');
+
+  function showLoading(msg) {
+    LOADING.style.display = 'flex';
+    LOADING.querySelector('p').textContent = msg || '불러오는 중...';
+  }
+  function hideLoading() { LOADING.style.display = 'none'; }
+  function showLogin() { OVERLAY.style.display = 'flex'; APP.style.display = 'none'; hideLoading(); }
+  function showApp() { OVERLAY.style.display = 'none'; APP.style.display = 'block'; hideLoading(); }
+
+  loginBtn.addEventListener('click', async () => {
+    const email = emailInput.value.trim();
+    const pw = passwordInput.value;
+    if (!email || !pw) { loginError.textContent = '이메일과 비밀번호를 입력해 주세요.'; return; }
+    loginError.textContent = '';
+    loginBtn.disabled = true;
+    loginBtn.textContent = '로그인 중...';
+    try {
+      await firebase.auth().signInWithEmailAndPassword(email, pw);
+    } catch (e) {
+      if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+        loginError.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
+      } else {
+        loginError.textContent = '오류: ' + e.message;
+      }
+      loginBtn.disabled = false;
+      loginBtn.textContent = '로그인';
+    }
+  });
+
+  passwordInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') loginBtn.click();
+  });
+
+  logoutBtn && logoutBtn.addEventListener('click', () => {
+    firebase.auth().signOut();
+  });
+
+  let unsubscribers = [];
+
+  function setupFirestoreListeners(uid) {
+    const db = firebase.firestore();
+    const hRef = db.collection('households').doc(uid);
+    window.__fs = hRef;
+
+    unsubscribers.forEach(fn => fn());
+    unsubscribers = [];
+
+    let loaded = { transactions: false, fixedItems: false, holdings: false, settings: false };
+    let data = { transactions: [], fixedItems: [], holdings: [], cash: 0 };
+
+    function tryInjectData() {
+      if (!Object.values(loaded).every(Boolean)) return;
+      function injectIntoComponent(comp) {
+        comp.cash = data.cash;
+        comp.setState({
+          transactions: data.transactions,
+          fixedItems: data.fixedItems,
+          holdings: data.holdings,
+          cash: data.cash,
+        });
+        showApp();
+      }
+      if (window.__dcComponent) {
+        injectIntoComponent(window.__dcComponent);
+      } else {
+        window.__onComponentReady = injectIntoComponent;
+        showApp();
+      }
+    }
+
+    const u1 = hRef.collection('transactions').onSnapshot((snap) => {
+      data.transactions = snap.docs.map(d => d.data());
+      loaded.transactions = true;
+      if (window.__dcComponent) window.__dcComponent.setState({ transactions: data.transactions });
+      tryInjectData();
+    });
+
+    const u2 = hRef.collection('fixedItems').onSnapshot((snap) => {
+      data.fixedItems = snap.docs.map(d => d.data());
+      loaded.fixedItems = true;
+      if (window.__dcComponent) window.__dcComponent.setState({ fixedItems: data.fixedItems });
+      tryInjectData();
+    });
+
+    const u3 = hRef.collection('holdings').onSnapshot((snap) => {
+      data.holdings = snap.docs.map(d => d.data());
+      loaded.holdings = true;
+      if (window.__dcComponent) window.__dcComponent.setState({ holdings: data.holdings });
+      tryInjectData();
+    });
+
+    const u4 = hRef.collection('settings').doc('main').onSnapshot((snap) => {
+      if (snap.exists) {
+        data.cash = snap.data().cash || 0;
+      }
+      loaded.settings = true;
+      if (window.__dcComponent) {
+        window.__dcComponent.cash = data.cash;
+        window.__dcComponent.setState({ cash: data.cash });
+      }
+      tryInjectData();
+    }, () => { loaded.settings = true; tryInjectData(); });
+
+    unsubscribers = [u1, u2, u3, u4];
+  }
+
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      showLoading('가계부 불러오는 중...');
+      setupFirestoreListeners(user.uid);
+    } else {
+      unsubscribers.forEach(fn => fn());
+      unsubscribers = [];
+      window.__fs = null;
+      window.__dcComponent = null;
+      showLogin();
+    }
+  });
+})();
+</script>
+
+
+<!-- Service Worker registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(r => console.log('SW registered:', r.scope))
+        .catch(e => console.log('SW registration failed:', e));
+    });
+  }
+</script>
+
+</body>
+</html>
