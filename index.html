@@ -620,6 +620,53 @@ http://scripts.sil.org/OFL
             <button onclick="{{ saveUpdate }}" style="width:100%;border:none;background:#3C5A47;color:#fff;border-radius:16px;padding:17px;font-size:16px;font-weight:700;cursor:pointer">업데이트</button>
           </div>
         </sc-if>
+
+        <!-- ADD HOLDING -->
+        <sc-if value="{{ sheetHolding }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:0;right:0;bottom:0;background:#F7F3EC;border-radius:28px 28px 0 0;padding:10px 20px calc(20px + env(safe-area-inset-bottom));max-height:96%;overflow-y:auto;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1)" class="scrollarea">
+            <div style="width:38px;height:4px;border-radius:3px;background:#DDD6C9;margin:4px auto 14px"></div>
+            <div style="font-size:16px;font-weight:700;color:#2C2925;text-align:center;margin-bottom:18px">투자 항목 추가</div>
+
+            <input value="{{ holdingName }}" onchange="{{ setHoldingName }}" placeholder="항목 이름 (예: 삼성전자, S&P500)" style="width:100%;border:none;background:#fff;border-radius:14px;padding:14px 16px;font-size:14px;color:#2C2925;font-family:inherit;margin-bottom:16px;outline:none">
+
+            <div style="font-size:12px;font-weight:600;color:#9A9388;margin-bottom:9px">유형</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
+              <sc-for list="{{ holdingTypeVm }}" as="t" hint-placeholder-count="5">
+                <button onclick="{{ t.on }}" style="border:none;border-radius:11px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;background:{{ t.bg }};color:{{ t.ink }}">{{ t.label }}</button>
+              </sc-for>
+            </div>
+
+            <div style="font-size:12px;font-weight:600;color:#9A9388;margin-bottom:9px">누구 명의인가요?</div>
+            <div style="display:flex;gap:10px;margin-bottom:18px">
+              <sc-for list="{{ holdingMemberChips }}" as="m" hint-placeholder-count="2">
+                <button onclick="{{ m.on }}" style="flex:1;border:2px solid {{ m.border }};background:{{ m.bg }};border-radius:14px;padding:11px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer">
+                  <div style="width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:{{ m.tint }};color:{{ m.tinkInk }}">{{ m.initial }}</div>
+                  <span style="font-size:14px;font-weight:700;color:{{ m.ink }}">{{ m.name }}</span>
+                </button>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-bottom:14px">
+              <button onclick="{{ setHoldingFieldInvested }}" style="flex:1;border:2px solid {{ holdingInvestedActive ? '#3C5A47' : '#E4DECF' }};background:{{ holdingInvestedActive ? '#EEF3EF' : '#fff' }};border-radius:14px;padding:12px 10px;cursor:pointer;text-align:left">
+                <div style="font-size:11px;color:#9A9388;margin-bottom:3px">투자 원금</div>
+                <div style="font-size:16px;font-weight:800;color:#2C2925;font-variant-numeric:tabular-nums">{{ holdingInvestedText }}원</div>
+              </button>
+              <button onclick="{{ setHoldingFieldCurrent }}" style="flex:1;border:2px solid {{ holdingCurrentActive ? '#3C5A47' : '#E4DECF' }};background:{{ holdingCurrentActive ? '#EEF3EF' : '#fff' }};border-radius:14px;padding:12px 10px;cursor:pointer;text-align:left">
+                <div style="font-size:11px;color:#9A9388;margin-bottom:3px">현재 평가금액</div>
+                <div style="font-size:14px;font-weight:700;color:#2C2925;font-variant-numeric:tabular-nums">{{ holdingCurrentText }}</div>
+              </button>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+              <sc-for list="{{ keypadVm }}" as="k" hint-placeholder-count="12">
+                <button onclick="{{ k.on }}" style="border:none;background:#fff;border-radius:14px;padding:16px 0;font-size:22px;font-weight:700;color:#2C2925;cursor:pointer;box-shadow:0 1px 2px rgba(44,41,37,.05)">{{ k.label }}</button>
+              </sc-for>
+            </div>
+
+            <button onclick="{{ saveHolding }}" style="width:100%;border:none;background:#3C5A47;color:#fff;border-radius:16px;padding:17px;font-size:16px;font-weight:700;cursor:pointer">등록하기</button>
+          </div>
+        </sc-if>
+
       </div>
     </sc-if>
 
@@ -651,6 +698,7 @@ class Component extends DCLogic {
       addMember: this.props.defaultPayer === '인영' ? 'b' : 'a',
       addMemo: '', updateId: null, updateAmount: '', filterMember: 'all',
       feId: null, feAmount: '', feName: '', feMember: 'a', feCategory: '주거', feDay: 1,
+      holdingName: '', holdingType: '주식', holdingMember: 'a', holdingInvested: '', holdingCurrent: '', holdingAmountField: 'holdingInvested',
       transactions: [],
       fixedItems: [],
       holdings: [],
@@ -674,6 +722,7 @@ class Component extends DCLogic {
     const s = this.state.sheet;
     if (s === 'update') return 'updateAmount';
     if (s === 'fixed') return 'feAmount';
+    if (s === 'holding') return this.state.holdingAmountField || 'holdingInvested';
     return 'addAmount';
   };
 
@@ -733,6 +782,22 @@ class Component extends DCLogic {
 
   feDayUp = () => this.setState((s) => ({ feDay: s.feDay >= 31 ? 1 : s.feDay + 1 }));
   feDayDown = () => this.setState((s) => ({ feDay: s.feDay <= 1 ? 31 : s.feDay - 1 }));
+
+  openHoldingAdd = () => this.setState({
+    sheet: 'holding', holdingName: '', holdingType: '주식',
+    holdingMember: 'a', holdingInvested: '', holdingCurrent: '', holdingAmountField: 'holdingInvested',
+  });
+
+  saveHolding = () => {
+    const s = this.state;
+    if (!s.holdingName.trim() || !s.holdingInvested) return;
+    const invested = Number(s.holdingInvested);
+    const current = s.holdingCurrent ? Number(s.holdingCurrent) : invested;
+    const id = 'h_' + Date.now();
+    const item = { id, name: s.holdingName.trim(), type: s.holdingType, member: s.holdingMember, invested, current };
+    this.setState((st) => ({ holdings: [...st.holdings, item], sheet: null }));
+    if (window.__fs) window.__fs.collection('holdings').doc(id).set(item).catch(console.error);
+  };
 
   saveFixed = () => {
     const st = this.state;
@@ -945,8 +1010,8 @@ class Component extends DCLogic {
       totalProfitColorLight: profit >= 0 ? '#A9DDBC' : '#E9B79E', holdingsVm,
       navHomeColor: s.screen === 'home' ? sel : '#C3BCAF', navTxColor: s.screen === 'tx' ? sel : '#C3BCAF',
       navFixedColor: s.screen === 'fixed' ? sel : '#C3BCAF', navInvestColor: s.screen === 'invest' ? sel : '#C3BCAF',
-      openAdd: () => this.setState({ sheet: 'add', addType: 'expense', addCategory: null, addAmount: '', addMemo: '' }),
-      sheetOpen: !!s.sheet, sheetAdd: s.sheet === 'add', sheetFixed: s.sheet === 'fixed', sheetUpdate: s.sheet === 'update',
+      openAdd: s.screen === 'invest' ? this.openHoldingAdd : () => this.setState({ sheet: 'add', addType: 'expense', addCategory: null, addAmount: '', addMemo: '' }),
+      sheetOpen: !!s.sheet, sheetAdd: s.sheet === 'add', sheetFixed: s.sheet === 'fixed', sheetUpdate: s.sheet === 'update', sheetHolding: s.sheet === 'holding',
       closeSheet: () => this.setState({ sheet: null }),
       setExpense: () => this.setState({ addType: 'expense', addCategory: null }),
       setIncome: () => this.setState({ addType: 'income', addCategory: null }),
@@ -970,6 +1035,21 @@ class Component extends DCLogic {
       keypadVm,
       updateHoldingName: updH ? updH.name : '',
       updateAmountText: s.updateAmount ? fmt(Number(s.updateAmount)) : '0', saveUpdate: this.saveUpdate,
+      holdingName: s.holdingName, setHoldingName: (e) => this.setState({ holdingName: e.target.value }),
+      holdingMemberChips: memberChips(s.holdingMember, (id) => this.setState({ holdingMember: id })),
+      holdingTypeVm: ['주식','ETF','펀드','부동산','기타'].map((t) => ({
+        label: t,
+        bg: s.holdingType === t ? '#3C5A47' : '#EEE9E0',
+        ink: s.holdingType === t ? '#fff' : '#6B6459',
+        on: () => this.setState({ holdingType: t }),
+      })),
+      holdingInvestedText: s.holdingInvested ? fmt(Number(s.holdingInvested)) : '0',
+      holdingCurrentText: s.holdingCurrent ? fmt(Number(s.holdingCurrent)) : '원금과 동일',
+      holdingInvestedActive: s.holdingAmountField === 'holdingInvested',
+      holdingCurrentActive: s.holdingAmountField === 'holdingCurrent',
+      setHoldingFieldInvested: () => this.setState({ holdingAmountField: 'holdingInvested' }),
+      setHoldingFieldCurrent: () => this.setState({ holdingAmountField: 'holdingCurrent' }),
+      saveHolding: this.saveHolding,
       toastShow: !!s.toast, toastMsg: s.toast || '',
     };
   }
