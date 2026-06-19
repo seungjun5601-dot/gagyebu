@@ -118,16 +118,18 @@ http://scripts.sil.org/OFL
     .login-card {
       background: #F2EEE6; border-radius: 24px; padding: 36px 28px;
       width: 320px; max-width: 90vw; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      text-align: center;
     }
     .login-card h1 { margin: 0 0 4px; font-size: 20px; font-weight: 700; color: #2C2925; }
     .login-card p { margin: 0 0 28px; font-size: 13px; color: #9A9388; }
-    .login-card label { display: block; font-size: 12px; color: #6B6459; margin-bottom: 6px; font-weight: 500; }
-    .login-card input {
-      width: 100%; padding: 12px 14px; border: 1.5px solid #D8D2C7; border-radius: 12px;
-      font-size: 15px; font-family: inherit; background: #fff; color: #2C2925;
-      margin-bottom: 14px; outline: none; transition: border-color .2s;
+    .login-card label { display: block; font-size: 12px; color: #6B6459; margin-bottom: 12px; font-weight: 500; }
+    #pin-input {
+      width: 140px; padding: 16px 14px; border: 1.5px solid #D8D2C7; border-radius: 12px;
+      font-size: 28px; font-family: inherit; background: #fff; color: #2C2925;
+      margin-bottom: 20px; outline: none; transition: border-color .2s;
+      letter-spacing: 12px; text-align: center;
     }
-    .login-card input:focus { border-color: #3C5A47; }
+    #pin-input:focus { border-color: #3C5A47; }
     .login-card button {
       width: 100%; padding: 14px; background: #3C5A47; color: #fff;
       border: none; border-radius: 14px; font-size: 16px; font-weight: 600;
@@ -162,12 +164,10 @@ http://scripts.sil.org/OFL
 <div id="login-overlay">
   <div class="login-card">
     <h1>🏠 우리집 가계부</h1>
-    <p>지민 & 현우의 가계부입니다</p>
-    <label>이메일</label>
-    <input type="email" id="email" placeholder="가계부 이메일" autocomplete="email">
-    <label>비밀번호</label>
-    <input type="password" id="password" placeholder="비밀번호" autocomplete="current-password">
-    <button id="login-btn">로그인</button>
+    <p>승준 & 인영의 가계부입니다</p>
+    <label>PIN 번호를 입력해 주세요</label>
+    <input type="password" id="pin-input" placeholder="••••" maxlength="4" inputmode="numeric" autocomplete="off">
+    <button id="login-btn">확인</button>
     <div id="login-error"></div>
   </div>
 </div>
@@ -977,11 +977,12 @@ class Component extends DCLogic {
   const OVERLAY = document.getElementById('login-overlay');
   const APP = document.getElementById('app-wrapper');
   const LOADING = document.getElementById('loading-screen');
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
+  const pinInput = document.getElementById('pin-input');
   const loginBtn = document.getElementById('login-btn');
   const loginError = document.getElementById('login-error');
   const logoutBtn = document.getElementById('logout-btn');
+
+  const FAMILY_EMAIL = 'family@gagyebu.local';
 
   function showLoading(msg) {
     LOADING.style.display = 'flex';
@@ -992,26 +993,25 @@ class Component extends DCLogic {
   function showApp() { OVERLAY.style.display = 'none'; APP.style.display = 'block'; hideLoading(); }
 
   loginBtn.addEventListener('click', async () => {
-    const email = emailInput.value.trim();
-    const pw = passwordInput.value;
-    if (!email || !pw) { loginError.textContent = '이메일과 비밀번호를 입력해 주세요.'; return; }
+    const pin = pinInput.value.trim();
+    if (!pin) { loginError.textContent = 'PIN 번호를 입력해 주세요.'; return; }
     loginError.textContent = '';
     loginBtn.disabled = true;
-    loginBtn.textContent = '로그인 중...';
+    loginBtn.textContent = '확인 중...';
     try {
-      await firebase.auth().signInWithEmailAndPassword(email, pw);
+      await firebase.auth().signInWithEmailAndPassword(FAMILY_EMAIL, pin + '00');
     } catch (e) {
       if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
-        loginError.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
+        loginError.textContent = 'PIN 번호가 올바르지 않습니다.';
       } else {
         loginError.textContent = '오류: ' + e.message;
       }
       loginBtn.disabled = false;
-      loginBtn.textContent = '로그인';
+      loginBtn.textContent = '확인';
     }
   });
 
-  passwordInput.addEventListener('keydown', (e) => {
+  pinInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') loginBtn.click();
   });
 
