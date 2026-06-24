@@ -124,6 +124,8 @@ http://scripts.sil.org/OFL
         box-shadow: none !important;
       }
       .desktop-statusbar { display: none !important; }
+      #main-scroll { padding-top: calc(env(safe-area-inset-top) + 14px) !important; }
+      #logout-btn { top: calc(env(safe-area-inset-top) + 12px) !important; }
     }
 
     /* Login overlay */
@@ -144,7 +146,7 @@ http://scripts.sil.org/OFL
       width: 140px; padding: 16px 14px; border: 1.5px solid #D8D2C7; border-radius: 12px;
       font-size: 28px; font-family: inherit; background: #fff; color: #2C2925;
       margin-bottom: 20px; outline: none; transition: border-color .2s;
-      letter-spacing: 12px; text-align: center;
+      letter-spacing: 12px; text-align: center; text-indent: 12px;
     }
     #pin-input:focus { border-color: #3C5A47; }
     .login-card button {
@@ -300,7 +302,7 @@ http://scripts.sil.org/OFL
     </div>
 
     <!-- scroll content -->
-    <div class="scrollarea" style="flex:1;overflow-y:auto;background:#F2EEE6;display:flex;flex-direction:column;gap:14px;padding:6px 16px 110px">
+    <div id="main-scroll" class="scrollarea" style="flex:1;overflow-y:auto;background:#F2EEE6;display:flex;flex-direction:column;gap:14px;padding:6px 16px 110px">
 
       <!-- ===================== HOME ===================== -->
       <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
@@ -333,8 +335,12 @@ http://scripts.sil.org/OFL
           <!-- this month -->
           <div style="background:#fff;border-radius:22px;padding:20px;box-shadow:0 1px 2px rgba(44,41,37,.05),0 10px 26px rgba(44,41,37,.035)">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-              <span style="font-size:15px;font-weight:700;color:#2C2925">{{ currentMonthLabel }} 가계부</span>
-              <span style="font-size:12px;color:#9A9388">{{ currentMonthLabel }} 1일–{{ currentDayLabel }}일</span>
+              <div style="display:flex;align-items:center;gap:8px">
+                <button onclick="{{ prevMonth }}" style="border:none;background:#F1ECE3;border-radius:8px;width:28px;height:28px;font-size:16px;color:#6B6459;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">‹</button>
+                <span style="font-size:15px;font-weight:700;color:#2C2925">{{ viewMonthFull }}</span>
+                <button onclick="{{ nextMonth }}" style="border:none;background:{{ isCurrentMonth ? '#F1ECE3' : '#F1ECE3' }};border-radius:8px;width:28px;height:28px;font-size:16px;color:{{ isCurrentMonth ? '#C3BCAF' : '#6B6459' }};cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">›</button>
+              </div>
+              <span style="font-size:12px;color:#9A9388">1일–{{ currentDayLabel }}일</span>
             </div>
             <div style="display:flex;gap:14px;margin-bottom:15px">
               <div style="flex:1">
@@ -411,9 +417,23 @@ http://scripts.sil.org/OFL
             </sc-for>
           </div>
 
+          <!-- 멤버별 합계 -->
+          <div style="display:flex;gap:10px">
+            <sc-for list="{{ txMemberSummary }}" as="ms" hint-placeholder-count="2">
+              <div style="flex:1;background:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 1px 2px rgba(44,41,37,.05),0 6px 16px rgba(44,41,37,.04)">
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px">
+                  <div style="width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:{{ ms.tint }};color:{{ ms.ink }}">{{ ms.initial }}</div>
+                  <span style="font-size:12px;font-weight:700;color:#2C2925">{{ ms.name }}</span>
+                </div>
+                <div style="font-size:11px;color:#9A9388;margin-bottom:1px">수입 <span style="color:#4E7459;font-weight:700">{{ ms.income }}</span></div>
+                <div style="font-size:11px;color:#9A9388">지출 <span style="color:#C0744F;font-weight:700">{{ ms.expense }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+
           <div style="background:#fff;border-radius:22px;padding:6px 18px;box-shadow:0 1px 2px rgba(44,41,37,.05),0 10px 26px rgba(44,41,37,.035)">
             <sc-for list="{{ txVm }}" as="t" hint-placeholder-count="8">
-              <div style="display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid #F4EFE6">
+              <div style="display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid #F4EFE6">
                 <div style="width:38px;height:38px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:{{ t.memberTint }};color:{{ t.memberInk }}">{{ t.memberInitial }}</div>
                 <div style="flex:1;min-width:0">
                   <div style="display:flex;align-items:center;gap:6px">
@@ -422,8 +442,9 @@ http://scripts.sil.org/OFL
                   </div>
                   <div style="font-size:12px;color:#9A9388;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.sub }}</div>
                 </div>
-                <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:{{ t.amountColor }}">{{ t.amountText }}</div>
+                <div style="font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:{{ t.amountColor }}">{{ t.amountText }}</div>
                 <sc-if value="{{ t.canDelete }}" hint-placeholder-val="{{ false }}">
+                  <button onclick="{{ t.onEdit }}" style="width:28px;height:28px;flex:none;border:none;background:#EEF3EF;border-radius:8px;color:#3C5A47;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">✎</button>
                   <button onclick="{{ t.onDelete }}" style="width:28px;height:28px;flex:none;border:none;background:#FAF0EE;border-radius:8px;color:#C0744F;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">×</button>
                 </sc-if>
               </div>
@@ -476,6 +497,13 @@ http://scripts.sil.org/OFL
           </div>
 
           <div style="font-size:13px;color:#9A9388;padding:2px 4px;line-height:1.5">평가금액만 가끔 업데이트하면, 수익·손해는 자동으로 계산돼요. 매번 손익을 직접 입력할 필요가 없어요.</div>
+
+          <!-- 투자 필터 칩 -->
+          <div style="display:flex;gap:8px">
+            <sc-for list="{{ investFilterChips }}" as="fc" hint-placeholder-count="3">
+              <button onclick="{{ fc.on }}" style="border:none;border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;background:{{ fc.bg }};color:{{ fc.ink }}">{{ fc.label }}</button>
+            </sc-for>
+          </div>
 
           <sc-for list="{{ holdingsVm }}" as="h" hint-placeholder-count="5">
             <div style="background:#fff;border-radius:20px;padding:17px 18px;box-shadow:0 1px 2px rgba(44,41,37,.05),0 10px 26px rgba(44,41,37,.035)">
@@ -739,6 +767,8 @@ class Component extends DCLogic {
       feId: null, feAmount: '', feName: '', feMember: 'a', feCategory: '주거', feDay: 1,
       holdingName: '', holdingType: '주식', holdingMember: 'a', holdingInvested: '', holdingCurrent: '', holdingAmountField: 'holdingInvested',
       updateField: 'current', updateInvested: '',
+      viewYear: new Date().getFullYear(), viewMonth: new Date().getMonth() + 1,
+      investFilter: 'all', editTxId: null,
       transactions: [],
       fixedItems: [],
       holdings: [],
@@ -790,6 +820,18 @@ class Component extends DCLogic {
     const st = this.state;
     const amt = Number(st.addAmount || 0);
     if (!amt || !st.addCategory) { this.showToast('금액과 분류를 입력해 주세요'); return; }
+    if (st.editTxId) {
+      // 수정 모드
+      const orig = st.transactions.find((x) => x.id === st.editTxId);
+      const updated = { ...orig, type: st.addType, amount: amt, category: st.addCategory, memo: st.addMemo || st.addCategory, member: st.addMember };
+      this.setState((p) => ({
+        transactions: p.transactions.map((x) => x.id === st.editTxId ? updated : x),
+        sheet: null, editTxId: null, addAmount: '', addCategory: null, addMemo: '',
+      }));
+      if (window.__fs) window.__fs.collection('transactions').doc(st.editTxId).set(updated).catch(console.error);
+      this.showToast('수정됐어요');
+      return;
+    }
     const t = {
       id: 't' + Date.now(),
       type: st.addType, amount: amt, category: st.addCategory,
@@ -801,9 +843,7 @@ class Component extends DCLogic {
       transactions: [t, ...p.transactions],
       sheet: null, addAmount: '', addCategory: null, addMemo: '',
     }));
-    if (window.__fs) {
-      window.__fs.collection('transactions').doc(t.id).set(t).catch(console.error);
-    }
+    if (window.__fs) window.__fs.collection('transactions').doc(t.id).set(t).catch(console.error);
     this.showToast(st.addType === 'income' ? '수입이 저장되었어요' : '지출이 저장되었어요');
   };
 
@@ -822,6 +862,21 @@ class Component extends DCLogic {
 
   feDayUp = () => this.setState((s) => ({ feDay: s.feDay >= 31 ? 1 : s.feDay + 1 }));
   feDayDown = () => this.setState((s) => ({ feDay: s.feDay <= 1 ? 31 : s.feDay - 1 }));
+
+  prevMonth = () => this.setState((s) => ({
+    viewMonth: s.viewMonth === 1 ? 12 : s.viewMonth - 1,
+    viewYear: s.viewMonth === 1 ? s.viewYear - 1 : s.viewYear,
+  }));
+  nextMonth = () => this.setState((s) => ({
+    viewMonth: s.viewMonth === 12 ? 1 : s.viewMonth + 1,
+    viewYear: s.viewMonth === 12 ? s.viewYear + 1 : s.viewYear,
+  }));
+
+  openEditTx = (id) => {
+    const t = this.state.transactions.find((x) => x.id === id);
+    if (!t) return;
+    this.setState({ sheet: 'add', editTxId: id, addType: t.type, addCategory: t.category, addAmount: String(t.amount), addMember: t.member, addMemo: t.memo || '' });
+  };
 
   openHoldingAdd = () => this.setState({
     sheet: 'holding', holdingName: '', holdingType: '주식',
@@ -943,10 +998,11 @@ class Component extends DCLogic {
     const allTx = [...s.transactions, ...fixedRows];
 
     const now = new Date();
-    const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
-    const currentMonthLabel = (now.getMonth() + 1) + '월';
-    const currentDayLabel = now.getDate();
-    const monthTx = allTx.filter((t) => t.date && t.date.startsWith(currentMonth + '.'));
+    const viewMM = String(s.viewMonth).padStart(2, '0');
+    const currentMonthLabel = s.viewMonth + '월';
+    const currentDayLabel = (s.viewYear === now.getFullYear() && s.viewMonth === now.getMonth() + 1) ? now.getDate() : new Date(s.viewYear, s.viewMonth, 0).getDate();
+    const isCurrentMonth = s.viewYear === now.getFullYear() && s.viewMonth === now.getMonth() + 1;
+    const monthTx = allTx.filter((t) => t.date && t.date.startsWith(viewMM + '.'));
 
     const income = monthTx.filter((t) => t.type === 'income').reduce((a, b) => a + b.amount, 0);
     const expense = monthTx.filter((t) => t.type === 'expense').reduce((a, b) => a + b.amount, 0);
@@ -970,9 +1026,18 @@ class Component extends DCLogic {
         amountText: s.privacy ? mask : (t.type === 'income' ? '+' : '-') + fmt(t.amount) + '원',
         amountColor: t.type === 'income' ? '#4E7459' : '#2C2925',
         onDelete: t.fixed ? null : () => this.deleteTx(t.id),
+        onEdit: t.fixed ? null : () => this.openEditTx(t.id),
         canDelete: !t.fixed,
       };
     };
+
+    // 멤버별 합계 (거래탭)
+    const maTx = monthTx.filter((t) => t.member === 'a');
+    const mbTx = monthTx.filter((t) => t.member === 'b');
+    const aIncome = maTx.filter((t) => t.type === 'income').reduce((a, b) => a + b.amount, 0);
+    const aExpense = maTx.filter((t) => t.type === 'expense').reduce((a, b) => a + b.amount, 0);
+    const bIncome = mbTx.filter((t) => t.type === 'income').reduce((a, b) => a + b.amount, 0);
+    const bExpense = mbTx.filter((t) => t.type === 'expense').reduce((a, b) => a + b.amount, 0);
     const sorted = [...allTx].sort((a, b) => (a.date < b.date ? 1 : -1));
     const recentVm = sorted.slice(0, 5).map(mapTx);
     let txFilt = sorted;
@@ -993,7 +1058,13 @@ class Component extends DCLogic {
       };
     });
 
-    const holdingsVm = s.holdings.map((h) => {
+    const filteredHoldings = s.investFilter === 'all' ? s.holdings : s.holdings.filter((h) => h.member === s.investFilter);
+    const fInvested = filteredHoldings.reduce((a, b) => a + b.invested, 0);
+    const fCurrent = filteredHoldings.reduce((a, b) => a + b.current, 0);
+    const fProfit = fCurrent - fInvested;
+    const fInvRate = fInvested ? (fProfit / fInvested) * 100 : 0;
+
+    const holdingsVm = filteredHoldings.map((h) => {
       const m = M[h.member];
       const p = h.current - h.invested;
       const r = h.invested ? (p / h.invested) * 100 : 0;
@@ -1048,7 +1119,9 @@ class Component extends DCLogic {
       togglePrivacy: () => this.setState((p) => ({ privacy: !p.privacy })),
       privacyLabel: s.privacy ? '금액 보기' : '금액 숨기기',
       netWorthText: kor(netWorth), cashText: won(s.cash), investCurrentText: won(current),
-      currentMonthLabel, currentDayLabel,
+      currentMonthLabel, currentDayLabel, isCurrentMonth,
+      viewMonthFull: s.viewYear + '년 ' + s.viewMonth + '월',
+      prevMonth: this.prevMonth, nextMonth: this.nextMonth,
       incomeText: won(income), expenseText: won(expense), expensePctText: expensePct + '%',
       netText: sgn(net), savingsRateText: savingsRate + '%',
       goInvest: () => this.setState({ screen: 'invest' }),
@@ -1060,12 +1133,22 @@ class Component extends DCLogic {
       fixedText: won(fixed), fixedCountText: activeFixed.length + '건', fixedActiveCountText: activeFixed.length + '건',
       fixedPctText: fixedPct + '%', fixedVm,
       recentVm, txVm, filterChips,
-      currentTotalText: kor(current), investedTotalText: won(invested), profitTotalText: sgn(profit),
-      invRateText: (profit >= 0 ? '+' : '') + invRate.toFixed(1) + '%',
-      totalProfitColorLight: profit >= 0 ? '#A9DDBC' : '#E9B79E', holdingsVm,
+      currentTotalText: kor(fCurrent), investedTotalText: won(fInvested), profitTotalText: sgn(fProfit),
+      invRateText: (fProfit >= 0 ? '+' : '') + fInvRate.toFixed(1) + '%',
+      totalProfitColorLight: fProfit >= 0 ? '#A9DDBC' : '#E9B79E', holdingsVm,
+      investFilterChips: ['all','a','b'].map((id) => ({
+        label: id === 'all' ? '통합' : id === 'a' ? M.a.name : M.b.name,
+        bg: s.investFilter === id ? '#3C5A47' : '#EAE4D8',
+        ink: s.investFilter === id ? '#fff' : '#6B6459',
+        on: () => this.setState({ investFilter: id }),
+      })),
+      txMemberSummary: [
+        { name: M.a.name, tint: M.a.tint, ink: M.a.ink, initial: M.a.initial, income: won(aIncome), expense: won(aExpense) },
+        { name: M.b.name, tint: M.b.tint, ink: M.b.ink, initial: M.b.initial, income: won(bIncome), expense: won(bExpense) },
+      ],
       navHomeColor: s.screen === 'home' ? sel : '#C3BCAF', navTxColor: s.screen === 'tx' ? sel : '#C3BCAF',
       navFixedColor: s.screen === 'fixed' ? sel : '#C3BCAF', navInvestColor: s.screen === 'invest' ? sel : '#C3BCAF',
-      openAdd: s.screen === 'invest' ? this.openHoldingAdd : () => this.setState({ sheet: 'add', addType: 'expense', addCategory: null, addAmount: '', addMemo: '' }),
+      openAdd: s.screen === 'invest' ? this.openHoldingAdd : () => this.setState({ sheet: 'add', editTxId: null, addType: 'expense', addCategory: null, addAmount: '', addMemo: '' }),
       sheetOpen: !!s.sheet, sheetAdd: s.sheet === 'add', sheetFixed: s.sheet === 'fixed', sheetUpdate: s.sheet === 'update', sheetHolding: s.sheet === 'holding',
       closeSheet: () => this.setState({ sheet: null }),
       setExpense: () => this.setState({ addType: 'expense', addCategory: null }),
