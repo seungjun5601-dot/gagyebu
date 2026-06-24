@@ -1246,7 +1246,10 @@ class Component extends DCLogic {
       unsubscribers.forEach(fn => fn());
       unsubscribers = [];
       window.__fs = null;
-      window.__dcComponent = null;
+      // 컴포넌트 참조는 유지 — 로그아웃해도 DOM은 그대로
+      if (window.__dcComponent) {
+        window.__dcComponent.setState({ transactions: [], fixedItems: [], holdings: [], cash: 0 });
+      }
       showLogin();
     }
   });
