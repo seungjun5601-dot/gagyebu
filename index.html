@@ -167,14 +167,6 @@ http://scripts.sil.org/OFL
     #loading-screen p { color: #BCD0C2; font-size: 14px; margin: 0; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Logout button */
-    #logout-btn {
-      position: fixed; top: 16px; right: 16px; z-index: 100;
-      background: rgba(0,0,0,0.15); color: #fff; border: none;
-      border-radius: 20px; padding: 6px 14px; font-size: 12px;
-      font-family: inherit; cursor: pointer; display: none;
-    }
-    #app-wrapper.visible #logout-btn { display: block; }
   </style>
 </head>
 <body>
@@ -201,7 +193,6 @@ http://scripts.sil.org/OFL
 
 <!-- App wrapper (hidden until logged in) -->
 <div id="app-wrapper" style="position:relative;">
-  <button id="logout-btn">로그아웃</button>
 
 <x-dc>
 
@@ -666,13 +657,13 @@ http://scripts.sil.org/OFL
             </div>
 
             <div style="display:flex;gap:10px;margin-bottom:14px">
-              <button onclick="{{ setUpdateFieldInvested }}" style="flex:1;border:2px solid {{ updateFieldInvested ? '#3C5A47' : '#E4DECF' }};background:{{ updateFieldInvested ? '#EEF3EF' : '#fff' }};border-radius:14px;padding:12px 10px;cursor:pointer;text-align:left">
-                <div style="font-size:11px;color:#9A9388;margin-bottom:3px">투자 원금</div>
-                <div style="font-size:18px;font-weight:800;color:{{ updateFieldInvested ? '#3C5A47' : '#2C2925' }};font-variant-numeric:tabular-nums">{{ updateInvestedText }}원</div>
+              <button onclick="{{ setUpdateFieldInvested }}" style="flex:1;border:2px solid {{ updateFieldInvested ? '#3C5A47' : '#E4DECF' }};background:{{ updateFieldInvested ? '#3C5A47' : '#fff' }};border-radius:14px;padding:12px 10px;cursor:pointer;text-align:left">
+                <div style="font-size:11px;color:{{ updateFieldInvested ? '#A9C2B1' : '#9A9388' }};margin-bottom:3px;font-weight:600">투자 원금</div>
+                <div style="font-size:18px;font-weight:800;color:{{ updateFieldInvested ? '#fff' : '#2C2925' }};font-variant-numeric:tabular-nums">{{ updateInvestedText }}원</div>
               </button>
-              <button onclick="{{ setUpdateFieldCurrent }}" style="flex:1;border:2px solid {{ updateFieldCurrent ? '#3C5A47' : '#E4DECF' }};background:{{ updateFieldCurrent ? '#EEF3EF' : '#fff' }};border-radius:14px;padding:12px 10px;cursor:pointer;text-align:left">
-                <div style="font-size:11px;color:#9A9388;margin-bottom:3px">현재 평가금액</div>
-                <div style="font-size:18px;font-weight:800;color:{{ updateFieldCurrent ? '#3C5A47' : '#2C2925' }};font-variant-numeric:tabular-nums">{{ updateAmountText }}원</div>
+              <button onclick="{{ setUpdateFieldCurrent }}" style="flex:1;border:2px solid {{ updateFieldCurrent ? '#3C5A47' : '#E4DECF' }};background:{{ updateFieldCurrent ? '#3C5A47' : '#fff' }};border-radius:14px;padding:12px 10px;cursor:pointer;text-align:left">
+                <div style="font-size:11px;color:{{ updateFieldCurrent ? '#A9C2B1' : '#9A9388' }};margin-bottom:3px;font-weight:600">현재 평가금액</div>
+                <div style="font-size:18px;font-weight:800;color:{{ updateFieldCurrent ? '#fff' : '#2C2925' }};font-variant-numeric:tabular-nums">{{ updateAmountText }}원</div>
               </button>
             </div>
 
@@ -714,13 +705,13 @@ http://scripts.sil.org/OFL
             </div>
 
             <div style="display:flex;gap:10px;margin-bottom:14px">
-              <button onclick="{{ setHoldingFieldInvested }}" style="flex:1;border:2px solid {{ holdingInvestedActive ? '#3C5A47' : '#E4DECF' }};background:{{ holdingInvestedActive ? '#EEF3EF' : '#fff' }};border-radius:14px;padding:12px 10px;cursor:pointer;text-align:left">
-                <div style="font-size:11px;color:#9A9388;margin-bottom:3px">투자 원금 {{ holdingInvestedActive ? '✎' : '' }}</div>
-                <div style="font-size:18px;font-weight:800;color:{{ holdingInvestedActive ? '#3C5A47' : '#2C2925' }};font-variant-numeric:tabular-nums">{{ holdingInvestedText }}원</div>
+              <button onclick="{{ setHoldingFieldInvested }}" style="flex:1;border:2px solid {{ holdingInvestedActive ? '#3C5A47' : '#E4DECF' }};background:{{ holdingInvestedActive ? '#3C5A47' : '#fff' }};border-radius:14px;padding:12px 10px;cursor:pointer;text-align:left">
+                <div style="font-size:11px;color:{{ holdingInvestedActive ? '#A9C2B1' : '#9A9388' }};margin-bottom:3px;font-weight:600">투자 원금</div>
+                <div style="font-size:18px;font-weight:800;color:{{ holdingInvestedActive ? '#fff' : '#2C2925' }};font-variant-numeric:tabular-nums">{{ holdingInvestedText }}원</div>
               </button>
-              <button onclick="{{ setHoldingFieldCurrent }}" style="flex:1;border:2px solid {{ holdingCurrentActive ? '#3C5A47' : '#E4DECF' }};background:{{ holdingCurrentActive ? '#EEF3EF' : '#fff' }};border-radius:14px;padding:12px 10px;cursor:pointer;text-align:left">
-                <div style="font-size:11px;color:#9A9388;margin-bottom:3px">현재 평가금액 {{ holdingCurrentActive ? '✎' : '' }}</div>
-                <div style="font-size:18px;font-weight:800;color:{{ holdingCurrentActive ? '#3C5A47' : '#2C2925' }};font-variant-numeric:tabular-nums">{{ holdingCurrentText }}</div>
+              <button onclick="{{ setHoldingFieldCurrent }}" style="flex:1;border:2px solid {{ holdingCurrentActive ? '#3C5A47' : '#E4DECF' }};background:{{ holdingCurrentActive ? '#3C5A47' : '#fff' }};border-radius:14px;padding:12px 10px;cursor:pointer;text-align:left">
+                <div style="font-size:11px;color:{{ holdingCurrentActive ? '#A9C2B1' : '#9A9388' }};margin-bottom:3px;font-weight:600">현재 평가금액</div>
+                <div style="font-size:18px;font-weight:800;color:{{ holdingCurrentActive ? '#fff' : '#2C2925' }};font-variant-numeric:tabular-nums">{{ holdingCurrentText }}</div>
               </button>
             </div>
 
@@ -1176,8 +1167,8 @@ class Component extends DCLogic {
       updateInvestedText: s.updateInvested ? fmt(Number(s.updateInvested)) : '0',
       updateFieldCurrent: s.updateField === 'current',
       updateFieldInvested: s.updateField === 'invested',
-      setUpdateFieldCurrent: () => this.setState({ updateField: 'current' }),
-      setUpdateFieldInvested: () => this.setState({ updateField: 'invested' }),
+      setUpdateFieldCurrent: () => this.setState({ updateField: 'current', updateAmount: '' }),
+      setUpdateFieldInvested: () => this.setState({ updateField: 'invested', updateInvested: '' }),
       saveUpdate: this.saveUpdate,
       deleteHolding: () => this.deleteHolding(s.updateId),
       holdingName: s.holdingName, setHoldingName: (e) => this.setState({ holdingName: e.target.value }),
@@ -1192,8 +1183,8 @@ class Component extends DCLogic {
       holdingCurrentText: s.holdingCurrent ? fmt(Number(s.holdingCurrent)) : '원금과 동일',
       holdingInvestedActive: s.holdingAmountField === 'holdingInvested',
       holdingCurrentActive: s.holdingAmountField === 'holdingCurrent',
-      setHoldingFieldInvested: () => this.setState({ holdingAmountField: 'holdingInvested' }),
-      setHoldingFieldCurrent: () => this.setState({ holdingAmountField: 'holdingCurrent' }),
+      setHoldingFieldInvested: () => this.setState({ holdingAmountField: 'holdingInvested', holdingInvested: '' }),
+      setHoldingFieldCurrent: () => this.setState({ holdingAmountField: 'holdingCurrent', holdingCurrent: '' }),
       saveHolding: this.saveHolding,
       toastShow: !!s.toast, toastMsg: s.toast || '',
     };
@@ -1212,7 +1203,6 @@ class Component extends DCLogic {
   const pinInput = document.getElementById('pin-input');
   const loginBtn = document.getElementById('login-btn');
   const loginError = document.getElementById('login-error');
-  const logoutBtn = document.getElementById('logout-btn');
 
   const FAMILY_EMAIL = 'family@gagyebu.local';
 
@@ -1248,9 +1238,7 @@ class Component extends DCLogic {
     if (e.key === 'Enter') loginBtn.click();
   });
 
-  logoutBtn && logoutBtn.addEventListener('click', () => {
-    firebase.auth().signOut();
-  });
+
 
   let unsubscribers = [];
 
