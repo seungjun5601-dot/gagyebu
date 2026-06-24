@@ -1,18 +1,19 @@
-const CACHE = 'gagyebu-v1';
+const CACHE = 'gagyebu-v3';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/dc-runtime.js',
-  '/manifest.json',
-  '/fonts/asset_1.woff2',
-  '/fonts/asset_3.woff2',
-  '/fonts/asset_5.woff2',
-  '/fonts/asset_7.woff2',
-  '/fonts/asset_9.woff2',
-  '/fonts/asset_11.woff2',
-  '/fonts/asset_13.woff2',
-  '/fonts/asset_15.woff2',
-  '/fonts/asset_17.woff2',
+  './',
+  './index.html',
+  './dc-runtime.js',
+  './manifest.json',
+  './firebase-config.js',
+  './fonts/asset_1.woff2',
+  './fonts/asset_3.woff2',
+  './fonts/asset_5.woff2',
+  './fonts/asset_7.woff2',
+  './fonts/asset_9.woff2',
+  './fonts/asset_11.woff2',
+  './fonts/asset_13.woff2',
+  './fonts/asset_15.woff2',
+  './fonts/asset_17.woff2',
 ];
 
 self.addEventListener('install', e => {
@@ -28,7 +29,6 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Firebase requests: network first
   if (e.request.url.includes('firebase') || e.request.url.includes('googleapis')) {
     return;
   }
