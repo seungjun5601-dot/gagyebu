@@ -1103,6 +1103,7 @@ class Component extends DCLogic {
     loginBtn.disabled = true;
     loginBtn.textContent = '확인 중...';
     try {
+      await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE);
       await firebase.auth().signInWithEmailAndPassword(FAMILY_EMAIL, pin + '00');
     } catch (e) {
       if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
