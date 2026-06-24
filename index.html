@@ -198,7 +198,7 @@ http://scripts.sil.org/OFL
 </div>
 
 <!-- App wrapper (hidden until logged in) -->
-<div id="app-wrapper" style="display:none; position:relative;">
+<div id="app-wrapper" style="position:relative;">
   <button id="logout-btn">로그아웃</button>
 
 <x-dc>
@@ -1138,8 +1138,8 @@ class Component extends DCLogic {
     LOADING.querySelector('p').textContent = msg || '불러오는 중...';
   }
   function hideLoading() { LOADING.style.display = 'none'; }
-  function showLogin() { OVERLAY.style.display = 'flex'; APP.style.display = 'none'; hideLoading(); }
-  function showApp() { OVERLAY.style.display = 'none'; APP.style.display = 'block'; hideLoading(); }
+  function showLogin() { OVERLAY.style.display = 'flex'; APP.classList.remove('visible'); hideLoading(); }
+  function showApp() { OVERLAY.style.display = 'none'; APP.classList.add('visible'); hideLoading(); }
 
   loginBtn.addEventListener('click', async () => {
     const pin = pinInput.value.trim();
